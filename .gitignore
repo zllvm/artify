@@ -1,6 +1,5 @@
 # === Node / pnpm / TurboRepo ===
 node_modules/
-pnpm-lock.yaml
 dist/
 build/
 .cache/

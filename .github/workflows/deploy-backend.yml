@@ -48,8 +48,8 @@ jobs:
       - name: "Terraform Plan"
         run: |
           terraform plan -input=false \
-            -var="service_name=${{ vars.BACKEND_SERVICE_NAME }}" \
-            -var="env=production" \
+            -var="service_name=${{ env.BACKEND_SERVICE_NAME }}" \
+            -var="env=${{ inputs.environment }}" \
             -out=tfplan_aws
         working-directory: ${{ env.TF_WORKING_DIR }}
 

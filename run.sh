@@ -11,3 +11,5 @@ pnpm turbo run dev:max --parallel
 # pnpm turbo run build --filter=backend
 # pnpm turbo run build --filter=frontend
 # pnpm --filter backend lint
+# pnpm exec eslint apps/backend/src/models/manifest.ts --debug
+# pnpm exec eslint . --cache

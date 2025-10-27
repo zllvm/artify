@@ -1,6 +1,11 @@
 name: Deploy Backend
+
 on:
   workflow_call:
+
+permissions:
+  id-token: write
+  contents: read
 
 env:
   BACKEND_SERVICE_NAME: ${{ vars.SERVICE_NAME }}-backend

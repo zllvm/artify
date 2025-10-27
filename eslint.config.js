@@ -2,6 +2,10 @@ import js from "@eslint/js";
 import ts from "typescript-eslint";
 import prettier from "eslint-config-prettier";
 import globals from "globals";
+import { fileURLToPath } from "node:url";
+import path from "node:path";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default [
   js.configs.recommended,
@@ -11,8 +15,8 @@ export default [
     files: ["apps/backend/**/*.ts"],
     languageOptions: {
       parserOptions: {
-        project: "./apps/backend/tsconfig.json",
-        tsconfigRootDir: import.meta.dirname,
+        project: path.resolve(__dirname, "apps/backend/tsconfig.json"),
+        tsconfigRootDir: path.resolve(__dirname),
       },
       globals: {
         ...globals.node, // replaces env.node: true

@@ -1,0 +1,36 @@
+{
+  "name": "@artify/shared",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./utils/common": {
+      "import": "./dist/utils/common.js",
+      "require": "./dist/utils/common.js",
+      "types": "./dist/utils/common.d.ts"
+    },
+    "./utils/imageUtils": {
+      "import": "./dist/utils/imageUtils.js",
+      "require": "./dist/utils/imageUtils.js",
+      "types": "./dist/utils/imageUtils.d.ts"
+    },
+    "./types/crossPlatform": {
+      "import": "./dist/types/crossPlatform.js",
+      "require": "./dist/types/crossPlatform.js",
+      "types": "./dist/types/crossPlatform.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "type-check": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}

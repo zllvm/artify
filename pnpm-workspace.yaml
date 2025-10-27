@@ -1,0 +1,9 @@
+injectWorkspacePackages: true
+
+packages:
+  - apps/backend
+  - apps/frontend
+  - packages/*
+
+ignoredBuiltDependencies:
+  - esbuild

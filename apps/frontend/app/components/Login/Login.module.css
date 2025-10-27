@@ -1,0 +1,93 @@
+.container {
+  /* display: flex;
+  align-items: center;
+  justify-content: center; */
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  /* height: 100%; */
+  position: relative;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  background: var(--card-bg);
+  padding: 1.5rem;
+  border-radius: 1rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  gap: 1.5rem;
+  /* width: 100vw; */
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+}
+
+.logoText {
+  font-size: 1.8rem;
+}
+
+.cardText {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 500;
+  /* margin-bottom: 0.5rem; */
+}
+
+.subtitle {
+  color: var(--text-secondary);
+  /* margin-bottom: 2rem; */
+}
+
+.loginBtn {
+  /* width: 80%; */
+  max-width: 220px;
+  padding: 0.75rem;
+  /* height: 48px; */
+}
+
+.loading,
+.loggedIn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  font-size: 1.2rem;
+}
+
+.closeBtn {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  background: transparent;
+  border: none;
+  font-size: 1rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+/* === LARGER SCREENS === */
+@media (min-width: 640px) {
+  .container {
+    align-items: center;
+  }
+  .card {
+    padding: 2rem;
+    width: auto;
+  }
+  .loginBtn {
+    width: auto;
+    max-width: unset;
+  }
+}

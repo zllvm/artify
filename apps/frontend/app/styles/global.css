@@ -1,0 +1,424 @@
+/* @import "./normalize.css"; */
+
+:root {
+  --black: #272727;
+  --white: #fff;
+
+  --p-yellow-100: 60 34% 98%;
+  --p-yellow-800: 63.16 9% 58%;
+
+  --p-blue-200: 190.51 51% 15%;
+
+  --p-cyan-50: 158.58 8% 37%;
+  --p-cyan-150: 180.01 2% 22%;
+  --p-cyan-200: 180.01 2% 18%;
+  --p-cyan-400: 180.03 3% 10%;
+
+  --hydra-450: 187.22 62% 34%;
+
+  /* --card-bg: hsl(60 34% 98% / 1); */
+  --card-bg: oklch(99.02% 0.004 106.47 / 1);
+  --bg-color: transparent;
+  --card-bg-inner: hsl(60 60% 99%);
+  --text-color: #222;
+  --text-secondary: #555;
+  --text-tip-color: #959594;
+  /* --foreground-color: #464848; */
+  --accent-color: #5ca9a0;
+
+  --light-foreground-color: var(--p-cyan-200);
+  --foreground-color: hsl(var(--p-cyan-200));
+  --foreground-dim-color: hsl(var(--p-cyan-200) / 0.75);
+  --selection-color: hsl(var(--hydra-450) / 0.5);
+  --scrollbar-color: hsl(var(--p-cyan-200) / 0.15);
+  --bg-base-color: hsl(var(--p-yellow-100));
+  --bg-subtle-color: hsl(var(--p-yellow-800) / 0.16);
+  --bg-surface-color: hsl(var(--p-cyan-50) / 0.2);
+  --tag-bg: hsl(var(--p-cyan-150) / 0.1);
+
+  --sidebar-bg: #222;
+  --sidebar-text: #fff;
+
+  /* --btn-text: #fffeef; */
+  --btn-text: #fbeccf;
+  /* --btn-color: #5ca9a0; */
+  --btn-color: #395d61;
+  --btn-color2: #9be7ff;
+  --btn-color2-soft-text: rgba(155, 231, 255, 0.7);
+  --btn-color2-soft-border: rgba(155, 231, 255, 0.3);
+  --btn-hover-bg: #76bcb4;
+
+  --logo-color: #222;
+
+  --spacing: 0.25rem;
+  --line-height: 1.5;
+
+  --text-font: "Open Sans", sans-serif;
+  --btn-font: "Poppins", sans-serif;
+
+  --subtle-border-color: hsl(var(--p-blue-200) / 0.25);
+  --subtler-border-color: hsl(var(--p-blue-200) / 0.16);
+  --subtlest-border-color: hsl(var(--p-blue-200) / 0.1);
+  --hover-color: hsl(63.16 9% 58% / 0.1);
+}
+
+/* Reset margins, paddings, and box-sizing */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Remove default list styles */
+ul,
+ol {
+  list-style: none;
+}
+
+/* Remove link underlines */
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Set consistent body defaults */
+html,
+body {
+  height: 100%;
+}
+
+html {
+  font-weight: 400;
+  font-size: 16px;
+  color: var(--text-color);
+  line-height: 1.5;
+}
+
+body {
+  font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background-color: var(--black);
+
+  color: var(--text-color);
+  font-size: 1rem;
+}
+
+/* Font smoothing (macOS and WebKit) */
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button:focus {
+  outline: none;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-header), sans-serif;
+  color: var(--foreground-color);
+}
+
+.logo {
+  font-family: var(--font-logo), sans-serif;
+  text-transform: capitalize;
+  font-weight: 700;
+  font-size: 1.2rem;
+  letter-spacing: 0.5px;
+  background: linear-gradient(90deg, #5fa9a0, #f8a55c);
+  -webkit-text-fill-color: transparent;
+  -webkit-background-clip: text;
+}
+
+/* Optional scrollbar polish */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+/* Utility */
+.noselect {
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none; /* Safari */
+  -khtml-user-select: none; /* Konqueror HTML */
+  -moz-user-select: none; /* Old versions of Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
+  user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome, Edge, Opera and Firefox */
+}
+
+.note {
+  font-size: 0.9rem;
+  color: var(--foreground-dim-color);
+}
+
+/* === Base input === */
+.input {
+  color: var(--foreground-color);
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--subtle-border-color);
+  font-size: 1rem;
+  width: 100%;
+  font-size: 0.95rem;
+  caret-color: hsl(var(--hydra-450) / 1);
+}
+
+.input::selection {
+  background: var(--selection-color);
+  /* color: #fff; */
+}
+
+textarea.input {
+  resize: none;
+  height: 100px;
+  min-height: 100px;
+  max-height: 50vh;
+  overflow-y: auto;
+  font-family: var(--font-geist-sans), sans-serif;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--subtler-border-color);
+  box-shadow: 0 0 0 1px var(--bg-subtle-color);
+}
+
+/* === Modal === */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(2px);
+  z-index: 1000;
+}
+
+.modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: 90vw;
+
+  /* height: 200px; */
+  transform: translate(-50%, -50%);
+  background: #fff;
+  border-radius: 1rem;
+  box-shadow: 0 4px 32px rgba(0, 0, 0, 0.18);
+  padding: 1rem;
+  z-index: 1001;
+  /* min-width: 500px; */
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: stretch;
+  gap: 1rem;
+}
+
+/* .modal textarea {
+  font-family: var(--font-geist-sans), sans-serif;
+} */
+
+/* .modal--st {
+  padding: 1rem;
+  gap: 1rem;
+} */
+
+.modal--transparent {
+  /* background: transparent; */
+  box-shadow: none;
+  /* padding: 0; */
+  /* width: auto; */
+}
+
+.modalHeader {
+  width: 100%;
+  text-align: left;
+  font-weight: 500;
+  color: var(--foreground-color);
+}
+
+/* === Base button === */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  font-family: inherit;
+  font-weight: 500;
+  border: 1px solid transparent;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.875rem;
+  border-radius: 0.4rem;
+  cursor: pointer;
+  outline: none;
+  background-color: var(--bg-subtle-color);
+  transition: background-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease,
+    transform 0.1s ease;
+
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none; /* Safari */
+  -khtml-user-select: none; /* Konqueror HTML */
+  -moz-user-select: none; /* Old versions of Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
+  user-select: none; /* Non-prefixed version, currently
+   
+}
+
+.btn:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.btn:hover {
+  /* opacity: 0.9; */
+  /* fallback first */
+  /* background-color: var(--btn-hover-bg);
+  background-color: color-mix(in srgb, var(--btn-color), white 15%); */
+}
+
+/* Primary (default) */
+.btn--primary {
+  background-color: var(--btn-color);
+  color: var(--btn-text);
+}
+
+/* Outline variant */
+.btn--outline {
+  background-color: transparent;
+  /* color: var(--btn-color); */
+  /* Use precomputed softened variables to avoid color-mix() for better browser support */
+  color: var(--btn-color2-soft-text);
+  border: 1px solid var(--btn-color2-soft-border);
+}
+
+.btn--outline:hover {
+  color: var(--btn-text);
+}
+
+/* Disabled */
+.btn:disabled {
+  opacity: 0.2;
+  cursor: default;
+}
+
+/* === Social buttons === */
+
+.btn--google {
+  background-color: #fff;
+  color: #3c4043;
+  border: 1px solid #dadce0;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  font-size: 0.95rem;
+}
+
+.btn--google:hover {
+  background-color: #f8f9fa;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+/* === Form buttons === */
+.btn--form {
+  background: #fff;
+  color: var(--foreground-color);
+  border: 1px solid var(--subtler-border-color);
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+  font-family: var(--btn-font);
+  letter-spacing: 0.01rem;
+  text-align: center;
+}
+
+.btn--form:hover {
+  background: var(--hover-color);
+}
+
+.btn--subtle {
+  color: var(--foreground-color);
+}
+
+.btn--inverse {
+  background: var(--foreground-color);
+  color: #fff;
+}
+
+.btn--ai {
+  background: var(--accent-color);
+  color: #fff;
+}
+
+.btn--act {
+  background: var(--accent-color);
+  color: #fff;
+}
+
+.btn--social {
+  font-size: 1.2rem;
+  font-weight: 700;
+  gap: 0.25rem;
+  align-items: center;
+  padding: 0.2rem 0.2rem;
+  padding-right: 0.5rem;
+  /* padding-left: 0.5rem;
+  padding-right: 0.5rem; */
+}
+
+.btn--slim {
+  padding: 0.4rem 0.4rem;
+}
+
+.btn--xl {
+  font-size: 1.2rem;
+}
+
+.btn--pinterest {
+  background-color: #e60023;
+  color: #fff;
+}
+
+.btn--instagram {
+  background-color: #df3e75;
+  color: #fff;
+}
+
+.btn--facebook {
+  background-color: #1765dc;
+  color: #fff;
+}
+
+.btn--artify {
+  color: white;
+  background: linear-gradient(135deg, #5ca9a0 0%, #4a8d86 50%, #3b6f6a 100%);
+}
+
+.btn--danger {
+  background: #e57373;
+  color: #fff;
+}
+
+.scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-color, initial)
+    var(--scrollbar-track, transparent);
+  scrollbar-gutter: unset;
+}
+
+@media (min-width: 768px) {
+  .modal {
+    min-width: 500px;
+    width: auto;
+  }
+}

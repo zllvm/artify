@@ -1,0 +1,551 @@
+/* === Layout === */
+.container {
+  display: flex;
+  flex: 1;
+  flex-direction: row;
+  justify-content: center;
+  align-items: start;
+  padding: 0.5rem;
+  position: relative;
+  background-color: var(--black);
+  /* background-color: green; */
+  overflow: auto;
+  min-height: 0;
+}
+
+.uploadForm {
+  display: grid;
+  flex: 1;
+  grid-template-areas:
+    "title"
+    "preview"
+    "meta"
+    "form"
+    "actions";
+
+  grid-template-rows: auto auto 1fr auto;
+  grid-template-columns: 1fr;
+  /* row-gap: 2rem; */
+  /* flex-direction: column; */
+  background-color: var(--card-bg);
+  /* background-color: yellow; */
+  border: 1px solid var(--subtlest-border-color);
+  border-radius: calc(var(--spacing) * 5);
+  /* width: 350px; */
+  /* width: 300px; */
+  max-width: 400px;
+  height: 530px;
+  border-width: 0;
+  /* max-height: 90vh; */
+  /* width: 100%;
+  max-width: 480px; */
+  /* height: 95vh;
+  height: 95svh;
+  height: -webkit-fill-available; */
+
+  /* padding: 0 0.5rem; */
+  /* overflow: hidden; */
+  /* width: 100%; */
+  /* max-width: 480px; */
+  /* z-index: 2; */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.addPainting {
+  grid-area: form;
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  align-items: stretch;
+  /* padding-top: 0.5rem; */
+  /* min-height: 0; */
+  gap: 1rem;
+}
+
+/* === Title === */
+.formTitle {
+  grid-area: title;
+  position: relative;
+  padding: 0.5rem 1rem 1.5rem;
+  text-align: center;
+  font-size: 1.4rem;
+  font-weight: 700;
+  font-family: var(--font-form-title);
+  border-bottom: none;
+  letter-spacing: 0.03em;
+  color: var(--foreground-color);
+  line-height: 1.2;
+}
+
+.formTitle::before {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--foreground-color);
+  /* z-index: 1; */
+}
+
+.formTitle::after {
+  content: "";
+  position: absolute;
+  bottom: -24px;
+  left: 50%;
+  transform: translateX(-50%) rotate(1deg);
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px var(--foreground-color);
+  background: #fff url("/images/paintbrush.png") center/contain no-repeat;
+  transition: transform 0.8s cubic-bezier(0.45, 0, 0.55, 1);
+  transform-origin: center;
+
+  animation: brushContinuous 2s cubic-bezier(0.55, 0.05, 0.45, 0.95) infinite
+    alternate both;
+  animation-play-state: paused;
+
+  /* z-index: 2; */
+}
+
+.formTitle.loading::after {
+  animation-play-state: running;
+}
+
+@keyframes brushContinuous {
+  0% {
+    transform: translateX(-50%) rotate(1deg);
+  }
+  50% {
+    transform: translateX(-50%) rotate(25deg);
+  }
+  100% {
+    transform: translateX(-50%) rotate(-25deg);
+  }
+}
+
+/* === Preview Section === */
+.previewContainer {
+  grid-area: preview;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding-top: 2rem;
+  padding-bottom: 1rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+
+  /* max-height: min(50vh, 300px); */
+  width: 100%;
+
+  /* min-height: 100px; */
+  /* background-color: yellow; */
+  /* padding: 0 1rem; */
+
+  /* margin-top: 2.5rem; */
+}
+
+.imagePreviewArea {
+  aspect-ratio: auto;
+  /* height: 100%; */
+  width: 100%;
+  max-height: 100%;
+  height: 200px;
+  /* max-height: min(50vh, 300px); */
+
+  /* width: 95%; */
+  /* height: 200px; */
+  /* take available space inside the preview container */
+  /* flex: 1; */
+  border: 2px dashed var(--subtler-border-color);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: blue;
+  /* overflow: hidden; */
+  background: var(--card-bg-inner);
+  transition: all 0.2s ease;
+}
+
+.imagePreviewArea.dragging {
+  border-color: #73afab;
+  background-color: rgba(115, 175, 171, 0.1);
+}
+
+.imagePreview {
+  width: 100%;
+  height: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.previewPlaceholder,
+.previewError {
+  display: flex;
+  /* flex: 1; */
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  color: var(--text-tip-color);
+  text-align: center;
+
+  /* width: 200px; */
+  /* max-width: 300px;
+  height: 200px; */
+}
+
+.placeholderTitle {
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: 0.01rem;
+}
+
+.placeholderSubtitle {
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+.placeholderText {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #334155;
+}
+
+.placeholderIcon,
+.errorIcon {
+  width: 80px;
+  height: 80px;
+  opacity: 0.5;
+  object-fit: contain;
+}
+
+.errorIcon {
+  width: 100px;
+  height: 100px;
+  margin-bottom: 0.5rem;
+}
+
+.errorMessage {
+  margin: 0;
+  color: #ef5350;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+/* === Upload Tabs === */
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding-top: 0.5rem;
+  /* gap: 0.5rem; */
+  /* margin: 1.5rem 0 1.25rem;
+  padding: 0 0.5rem; */
+}
+
+.uploadMethodTabs {
+  display: flex;
+  justify-content: center;
+
+  gap: 0.5rem;
+  border-bottom: 1px solid var(--subtlest-border-color);
+  padding-bottom: 0.5rem;
+}
+
+.tabButton {
+  background: transparent;
+  border: none;
+  padding: 0.3rem 0.8rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-tip-color);
+  cursor: pointer;
+  transition: all 0.2s;
+  border-bottom: 3px solid transparent;
+  border-radius: 6px 6px 0 0;
+}
+
+.tabButton:hover {
+  background: var(--bg-subtle-color);
+  color: var(--foreground-color);
+}
+
+.tabButton.active {
+  color: var(--foreground-color);
+  border-bottom-color: var(--foreground-color);
+  font-weight: 600;
+}
+
+/* === Upload Inputs === */
+.uploadMethodContent {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  padding: 0 1rem;
+}
+
+.fileUploadArea,
+.urlInputWrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.inputControlWrapper {
+  min-height: 50px;
+  display: flex;
+  flex-direction: column;
+}
+
+.fileUploadArea input[type="file"] {
+  display: none;
+}
+
+.urlInputWrapper input[type="url"] {
+  border: 1px solid var(--subtler-border-color);
+  background: #fff;
+  padding: 0.55rem 1rem;
+  border-radius: 6px;
+  font-size: 1.05rem;
+  transition: border-color 0.2s;
+  width: 100%;
+}
+
+.urlInputWrapper input[type="url"]:focus {
+  outline: none;
+  border-color: #34495e;
+}
+
+/* === Upload Button === */
+.uploadBtn {
+  display: block;
+  grid-area: actions;
+  width: 100%;
+  padding: 0.5rem 0.5rem;
+  font-size: 1.15rem;
+  background: #73afab;
+  color: #fff;
+  border: 2px solid #73afab;
+  border-radius: 0 0 calc(var(--spacing) * 4) calc(var(--spacing) * 4);
+  font-size: 1.3rem;
+  font-weight: 700;
+  font-family: "Lato", sans-serif;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+  /* margin-top: 0.5rem; */
+}
+
+.uploadBtn:hover {
+  background: #55827fff;
+  border-color: #55827fff;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+}
+
+.uploadBtn:active {
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+  /* transform: scale(0.99); */
+}
+
+.uploadBtn:disabled {
+  background: #a0c9c7ff;
+  border-color: #a0c9c7ff;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* === Metadata === */
+.imageMetadata {
+  grid-area: meta;
+
+  display: flex;
+  justify-content: center;
+  align-items: start;
+  font-size: 0.8rem;
+  overflow: hidden;
+  font-family: var(--text-font);
+  padding: 0 1rem;
+  /* padding-top: 1rem; */
+}
+
+.metadataGrid {
+  display: grid;
+  flex: 1;
+  /* grid-template-rows: auto; */
+  grid-template-columns: 4fr 6fr;
+  gap: 0.2rem 1rem;
+
+  background: rgba(190, 190, 190, 0.08);
+  border: 1px solid var(--subtler-border-color);
+  border-radius: 6px;
+  padding: 0.2rem 0.5rem;
+}
+
+.metadataItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.metadataLabel {
+  font-weight: 600;
+  color: var(--foreground-color);
+  font-size: 0.75rem;
+  flex-shrink: 0;
+}
+
+.metadataValue {
+  color: #6b6b6bff;
+  font-size: 0.8rem;
+  flex: 1;
+  direction: ltr;
+  text-align: center;
+}
+
+.metadataFilename .metadataValue {
+  /* overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap; */
+  /* min-width: 0;
+  max-width: 100%; */
+}
+
+/* === Responsive === */
+@media (min-width: 270px) {
+  .imageMetadata {
+    /* width: fit-content; */
+  }
+
+  .metadataItem {
+    flex-direction: row;
+    gap: 0.4rem;
+  }
+
+  .metadataValue {
+    text-align: right;
+  }
+}
+
+@media (max-width: 379px) {
+  .uploadForm {
+    height: auto;
+  }
+
+  .metadataGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .imagePreviewArea {
+    height: auto;
+  }
+}
+
+@media (min-width: 380px) {
+  .min-widthmetadataGrid {
+    /* grid-template-columns: auto auto; */
+  }
+
+  .metadataValue {
+    text-align: left;
+  }
+}
+
+@media (min-width: 768px) {
+  .uploadForm {
+    height: 555px;
+    grid-template-rows: auto auto 1fr 2fr 1fr;
+  }
+}
+
+@media (min-width: 1281px) {
+  /* .container {
+    background-color: var(--white);
+  }
+  .uploadForm {
+    border-width: 1px;
+  } */
+}
+
+@media (min-width: 600px) and (max-height: 639px) {
+  /* .container {
+    align-items: center;
+  } */
+
+  .uploadForm {
+    grid-template-areas:
+      "title title"
+      "preview form"
+      "preview meta"
+      "actions actions";
+
+    grid-template-rows: auto 1fr 2fr 1fr;
+    grid-template-columns: 1fr 1fr;
+
+    row-gap: 0;
+    column-gap: 0.5rem;
+    max-width: 700px;
+    height: 350px;
+    /* height: 90vh;
+    height: max(90vh, 300px); */
+    /* min-height: 300px; */
+  }
+
+  .metadataGrid {
+    grid-template-columns: 4fr 6fr;
+  }
+
+  .uploadMethodContent {
+    padding: 0;
+  }
+
+  .uploadBtn {
+    padding: 0;
+  }
+
+  .imagePreviewArea {
+    aspect-ratio: auto;
+  }
+
+  .previewContainer {
+    /* padding: 2rem 0; */
+    padding-left: 0.5rem;
+    justify-content: start;
+  }
+
+  .addPainting {
+    padding-top: 1.5rem;
+    padding-right: 0.5rem;
+    padding-left: 0.5rem;
+  }
+
+  .imageMetadata {
+    padding: 0 0.5rem;
+  }
+
+  .imagePreviewArea {
+    /* aspect-ratio: 4 / 3; */
+  }
+}
+
+@media (min-width: 600px) and (min-height: 360px) {
+  .container {
+    align-items: center;
+  }
+}
+@media (min-width: 350px) and (min-height: 540px) {
+  .container {
+    align-items: center;
+  }
+}

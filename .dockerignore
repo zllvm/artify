@@ -1,0 +1,47 @@
+# === General ===
+.git
+.gitignore
+README.md
+LICENSE
+*.log
+*.md
+*.env
+.env*
+.vscode/
+.idea/
+.DS_Store
+
+# === Node / PNPM ===
+node_modules/
+.pnpm-store/
+npm-debug.log
+pnpm-debug.log
+dist/
+build/
+.cache/
+turbo/
+
+# === Local & test ===
+test/
+coverage/
+tmp/
+__pycache__/
+
+# === Apps & packages ===
+# Ignore built or local assets that don’t need to go to Docker
+apps/frontend/
+apps/frontend-old/
+apps/**/.next/
+apps/**/out/
+apps/**/public/
+apps/**/uploads/
+
+# === System / Editor ===
+*.swp
+*.swo
+*.bak
+*.tmp
+
+# === Docker ===
+Dockerfile*
+.dockerignore

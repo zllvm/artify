@@ -13,6 +13,7 @@ permissions:
 jobs:
   build-backend:
     uses: ./.github/workflows/build-backend.yml
+    secrets: inherit
     with:
       environment: prod
   # deploy-backend:

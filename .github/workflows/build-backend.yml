@@ -35,6 +35,9 @@ jobs:
         run: |
           pnpm ls typescript @typescript-eslint/parser @typescript-eslint/eslint-plugin eslint
 
+      - name: Build shared workspace
+        run: pnpm --filter @artify/shared build
+
       - name: Lint
         run: pnpm --filter backend lint
 

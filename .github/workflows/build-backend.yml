@@ -1,14 +1,21 @@
 name: Build & Push Backend
 
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+  workflow_call:
+
+  # push:
+  #   branches: [main]
+  # pull_request:
+  #   branches: [main]
 
 permissions:
   contents: read
   packages: write
+
+env:
+  BACKEND_SERVICE_NAME: ${{ vars.SERVICE_NAME }}-backend
+  GITHUB_IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/${{ vars.SERVICE_NAME }}
+  AWS_BACKEND_IMAGE_NAME: ${{ secrets.AWS_ML_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/${{ vars.SERVICE_NAME }}-backend:${{ github.sha }}
 
 jobs:
   backend-ci:

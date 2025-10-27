@@ -1,0 +1,11 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  deploy-backend:
+    uses: ./.github/workflows/deploy-backend.yml

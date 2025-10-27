@@ -1,0 +1,56 @@
+name: Deploy Backend
+on:
+  workflow_call:
+
+env:
+  BACKEND_SERVICE_NAME: ${{ vars.SERVICE_NAME }}-backend
+  TF_WORKING_DIR: ./infra/backend
+  VERSION: 0.0.1
+
+jobs:
+  deploy-aws:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          role-to-assume: ${{ secrets.AWS_OIDC_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: "Setup Terraform"
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.13.4
+
+      - name: Terraform Init
+        run: |
+          terraform init -input=false \
+            -backend-config="bucket=${{ vars.TF_S3 }}" \
+            -backend-config="key=${{ vars.BACKEND_SERVICE_NAME }}-tfstate"
+        working-directory: ${{ env.TF_WORKING_DIR }}
+
+      - name: "Terraform Plan"
+        run: |
+          terraform plan -input=false \
+            -var="service_name=${{ vars.BACKEND_SERVICE_NAME }}" \
+            -var="env=production" \
+            -out=tfplan_aws
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        continue-on-error: false
+
+      - name: "Upload Terraform Plan"
+        uses: actions/upload-artifact@v4
+        with:
+          name: tfplan_aws
+          path: ${{ env.TF_WORKING_DIR }}/tfplan_aws.txt
+
+      - name: "Terraform Apply"
+        run: terraform apply -input=false -auto-approve tfplan_aws
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        continue-on-error: false

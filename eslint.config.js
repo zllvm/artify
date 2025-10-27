@@ -12,16 +12,14 @@ export default [
   ...ts.configs.recommendedTypeChecked,
   prettier,
   {
-    files: ["apps/backend/**/*.ts"],
     languageOptions: {
       parserOptions: {
-        // project: path.resolve(__dirname, "apps/backend/tsconfig.json"),
         project: path.resolve(__dirname, "tsconfig.json"),
         tsconfigRootDir: path.resolve(__dirname),
       },
       globals: {
-        ...globals.node, // replaces env.node: true
-        ...globals.es2022, // gives modern syntax globals
+        ...globals.node,
+        ...globals.es2022,
       },
     },
   },

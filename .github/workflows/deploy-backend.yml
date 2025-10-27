@@ -2,16 +2,25 @@ name: Deploy Backend
 
 on:
   workflow_call:
+    inputs:
+      environment:
+        type: string
+        required: true
 
 env:
-  BACKEND_SERVICE_NAME: ${{ vars.SERVICE_NAME }}-backend
+  BACKEND_SERVICE_NAME: ${{ inputs.environment }}-${{ vars.SERVICE_NAME }}-backend
   TF_WORKING_DIR: ./infra/backend
   VERSION: 0.0.1
 
 jobs:
   deploy-aws:
     runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
     steps:
+      - name: Check BACKEND_SERVICE_NAME
+        run: |
+          echo "Backend Service Name: ${{ env.BACKEND_SERVICE_NAME }}"
+
       - uses: actions/checkout@v4
 
       - name: Configure AWS credentials
@@ -33,7 +42,7 @@ jobs:
         run: |
           terraform init -input=false \
             -backend-config="bucket=${{ vars.TF_S3 }}" \
-            -backend-config="key=${{ vars.BACKEND_SERVICE_NAME }}-tfstate"
+            -backend-config="key=${{ vars.SERVICE_NAME }}/${{ inputs.environment }}/backend-tfstate"
         working-directory: ${{ env.TF_WORKING_DIR }}
 
       - name: "Terraform Plan"
@@ -43,9 +52,12 @@ jobs:
             -var="env=production" \
             -out=tfplan_aws
         working-directory: ${{ env.TF_WORKING_DIR }}
-        continue-on-error: false
 
-      - name: "Upload Terraform Plan"
+      - name: Save Terraform plan as text
+        run: terraform show tfplan_aws > tfplan_aws.txt
+        working-directory: ${{ env.TF_WORKING_DIR }}
+
+      - name: Upload Terraform Plan Text
         uses: actions/upload-artifact@v4
         with:
           name: tfplan_aws
@@ -54,4 +66,3 @@ jobs:
       - name: "Terraform Apply"
         run: terraform apply -input=false -auto-approve tfplan_aws
         working-directory: ${{ env.TF_WORKING_DIR }}
-        continue-on-error: false

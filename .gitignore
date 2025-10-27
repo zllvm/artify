@@ -50,6 +50,16 @@ coverage/
 /out/
 *.tgz
 
+# === Terraform ===
+*.tfstate
+*.tfstate.backup
+.terraform/
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
 # === Frontend (React) ===
 /apps/frontend/.next/
 /apps/frontend/.vercel/
@@ -71,3 +81,5 @@ temp/
 /apps/frontend-old/
 
 /apps/backend/uploads/
+
+backend.hcl

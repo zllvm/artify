@@ -65,6 +65,8 @@ jobs:
       version: ${{ env.VERSION }}
 
     steps:
+      - uses: actions/checkout@v4
+
       - name: Compute version
         run: |
           PKG_VERSION=$(node -p "require('./apps/backend/package.json').version")
@@ -74,8 +76,6 @@ jobs:
           echo "VERSION=${VERSION}" >> $GITHUB_ENV
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
           echo "Computed VERSION=${VERSION}"
-
-      - uses: actions/checkout@v4
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3

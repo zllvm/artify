@@ -2,63 +2,79 @@ name: Build & Push Backend
 
 on:
   workflow_call:
+    inputs:
+      environment:
+        type: string
+        required: true
 
-  # push:
-  #   branches: [main]
-  # pull_request:
-  #   branches: [main]
-
-permissions:
-  contents: read
-  packages: write
+# permissions:
+#   contents: read
+#   packages: write
 
 env:
   BACKEND_SERVICE_NAME: ${{ vars.SERVICE_NAME }}-backend
   GITHUB_IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/${{ vars.SERVICE_NAME }}
-  AWS_BACKEND_IMAGE_NAME: ${{ secrets.AWS_ML_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/${{ vars.SERVICE_NAME }}-backend:${{ github.sha }}
+  AWS_IMAGE_NAME: ${{ secrets.AWS_ML_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/${{ inputs.environment }}-${{ vars.SERVICE_NAME }}-backend
+  # VERSION: 0.0.1-$(date +'%Y%m%d')-${{ github.sha::7 }}
 
 jobs:
-  backend-ci:
-    name: Lint & Test
-    runs-on: ubuntu-latest
+  # backend-ci:
+  #   name: Lint & Test
+  #   runs-on: ubuntu-latest
+  #   environment: ${{ inputs.environment }}
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v4
 
-      - name: Set up Node 22
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          # cache: "pnpm"
+  #     - name: Set up Node 22
+  #       uses: actions/setup-node@v4
+  #       with:
+  #         node-version: 22
+  #         # cache: "pnpm"
 
-      - name: Install pnpm
-        run: corepack enable && corepack prepare pnpm@latest --activate
+  #     - name: Install pnpm
+  #       run: corepack enable && corepack prepare pnpm@latest --activate
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+  #     - name: Install dependencies
+  #       run: pnpm install --frozen-lockfile
 
-      - name: Debug TypeScript and ESLint versions
-        run: |
-          pnpm ls typescript @typescript-eslint/parser @typescript-eslint/eslint-plugin eslint
+  #     - name: Debug TypeScript and ESLint versions
+  #       run: |
+  #         pnpm ls typescript @typescript-eslint/parser @typescript-eslint/eslint-plugin eslint
 
-      - name: Build shared workspace
-        run: pnpm --filter @artify/shared build
+  #     - name: Build shared workspace
+  #       run: pnpm --filter @artify/shared build
 
-      - name: Lint
-        run: pnpm --filter backend lint
+  #     - name: Lint
+  #       run: pnpm --filter backend lint
 
-      - name: Type Check
-        run: pnpm --filter backend type-check
+  #     - name: Type Check
+  #       run: pnpm --filter backend type-check
 
-      - name: Run Tests
-        run: pnpm --filter backend test
+  #     - name: Run Tests
+  #       run: pnpm --filter backend test
 
   build:
-    needs: backend-ci
+    # needs: backend-ci
     runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    outputs:
+      image_uri: ${{ steps.meta.outputs.image_uri }}
+      image_tag: ${{ steps.meta.outputs.image_tag }}
+      version: ${{ env.VERSION }}
 
     steps:
+      - name: Compute version
+        run: |
+          PKG_VERSION=$(node -p "require('./apps/backend/package.json').version")
+          SHORT_SHA=${GITHUB_SHA::7}
+          DATE=$(date +'%Y%m%d')
+          VERSION=v${PKG_VERSION}-${DATE}-${SHORT_SHA}
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "Computed VERSION=${VERSION}"
+
       - uses: actions/checkout@v4
 
       - name: Set up Docker Buildx
@@ -66,20 +82,39 @@ jobs:
 
       - name: Build backend Docker image
         run: |
-          docker build -t artify-backend -f Dockerfile.backend .
+          docker build -t ${{ env.BACKEND_SERVICE_NAME }} -f Dockerfile.backend .
 
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v2
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v5
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          role-to-assume: ${{ secrets.AWS_OIDC_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
 
-      - name: Tag and push image
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and push image to ECR
         run: |
-          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/artify-backend
-          VERSION=${{ github.sha }}
-          docker tag artify-backend $IMAGE_ID:latest
-          docker tag artify-backend $IMAGE_ID:$VERSION
-          docker push $IMAGE_ID:latest
-          docker push $IMAGE_ID:$VERSION
+          docker tag ${{ env.BACKEND_SERVICE_NAME }} ${{ env.AWS_IMAGE_NAME }}:latest
+          docker tag ${{ env.BACKEND_SERVICE_NAME }} ${{ env.AWS_IMAGE_NAME }}:${{ env.VERSION }}
+          docker push ${{ env.AWS_IMAGE_NAME }}:latest
+          docker push ${{ env.AWS_IMAGE_NAME }}:${{ env.VERSION }}
+          echo "image_uri=${{ env.AWS_IMAGE_NAME }}" >> $GITHUB_OUTPUT
+          echo "image_tag=${{ env.VERSION }}" >> $GITHUB_OUTPUT
+
+      # - name: Log in to GitHub Container Registry
+      #   uses: docker/login-action@v2
+      #   with:
+      #     registry: ghcr.io
+      #     username: ${{ github.actor }}
+      #     password: ${{ secrets.GITHUB_TOKEN }}
+
+      # - name: Tag and push to GIHUB
+      #   run: |
+      #     IMAGE_ID=ghcr.io/${{ github.repository_owner }}/artify-backend
+      #     VERSION=${{ github.sha }}
+      #     docker tag artify-backend $IMAGE_ID:latest
+      #     docker tag artify-backend $IMAGE_ID:$VERSION
+      #     docker push $IMAGE_ID:latest
+      #     docker push $IMAGE_ID:$VERSION

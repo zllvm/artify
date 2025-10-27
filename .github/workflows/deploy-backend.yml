@@ -10,7 +10,6 @@ on:
 env:
   BACKEND_SERVICE_NAME: ${{ inputs.environment }}-${{ vars.SERVICE_NAME }}-backend
   TF_WORKING_DIR: ./infra/backend
-  VERSION: 0.0.1
 
 jobs:
   deploy-aws:

@@ -48,6 +48,7 @@ jobs:
         run: pnpm --filter backend test
 
   build:
+    needs: backend-ci
     runs-on: ubuntu-latest
 
     steps:
@@ -55,22 +56,6 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-
-      - name: Lint
-        run: |
-          pnpm install --frozen-lockfile
-          pnpm --filter backend lint
-
-      - name: Test
-        run: |
-          pnpm install --frozen-lockfile
-          pnpm --filter backend test
-
-      - name: Install pnpm
-        run: npm install -g pnpm
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
 
       - name: Build backend Docker image
         run: |
@@ -83,7 +68,11 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Push backend Docker image to GitHub Container Registry
+      - name: Tag and push image
         run: |
-          docker tag artify-backend ghcr.io/${{ github.repository_owner }}/artify-backend:latest
-          docker push ghcr.io/${{ github.repository_owner }}/artify-backend:latest
+          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/artify-backend
+          VERSION=${{ github.sha }}
+          docker tag artify-backend $IMAGE_ID:latest
+          docker tag artify-backend $IMAGE_ID:$VERSION
+          docker push $IMAGE_ID:latest
+          docker push $IMAGE_ID:$VERSION

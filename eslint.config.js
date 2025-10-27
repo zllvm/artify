@@ -14,10 +14,7 @@ export default [
   {
     languageOptions: {
       parserOptions: {
-        project: [
-          path.resolve(__dirname, "tsconfig.json"),
-          path.resolve(__dirname, "apps/backend/tsconfig.json"),
-        ],
+        projectService: true,
         tsconfigRootDir: path.resolve(__dirname),
       },
       globals: {

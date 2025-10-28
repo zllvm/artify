@@ -1,14 +1,14 @@
-import { Router } from 'express';
+import { Router } from "express";
 
-import config from '../config/environment.js';
-import { logger } from '../utils/logger.js';
+import config from "../config/environment.js";
+import { logger } from "../utils/logger.js";
 
 import type { Request, Response } from "express";
 const router = Router();
 
 router.get("/", (req: Request, res: Response) => {
   try {
-    logger.debug("Health check requested");
+    logger.info("Health check requested");
 
     // const [aiHealth, socialMediaHealth] = await Promise.all([
     //   AIService.healthCheck(),

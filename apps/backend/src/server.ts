@@ -3,8 +3,7 @@ import config from "./config/environment.js";
 
 const app = createApp();
 
-app.listen(config.port, () => {
-  console.log(`Server running at ${config.baseUrl}:${config.port}`);
+app.listen(config.port, "0.0.0.0", () => {
+  console.log(`Server running on port ${config.port}`);
   console.log(`Environment: ${config.env}`);
-  console.log(`Public Key: ${config.jwtPublicKey}`);
 });

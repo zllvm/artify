@@ -9,36 +9,35 @@ variable "env" {
   default     = "dev"
 }
 
-# variable "google_client_id" {
-#   description = "Google OAuth Client ID"
-#   sensitive   = true
-#   type        = string
-# }
+variable "container_image" {
+  type        = string
+  description = "The Docker image URI for the backend"
+}
 
-# variable "google_client_secret" {
-#   description = "Google OAuth Client Secret"
-#   sensitive   = true
-#   type        = string
-# }
+variable "cpu" {
+  description = "CPU units"
+  type        = number
+  default     = 256
+}
 
-# variable "google_redirect_uri" {
-#   description = "Google OAuth Redirect URI"
-#   type        = string
-# }
+variable "memory" {
+  description = "Memory units"
+  type        = number
+  default     = 512
+}
 
-# variable "openai_api_key" {
-#   description = "OpenAI API Key"
-#   sensitive   = true
-#   type        = string
-# }
+variable "container_port" {
+  description = "Container port"
+  type        = number
+  default     = 80
+}
 
-# variable "jwt_private_key" {
-#   description = "JWT Private Key"
-#   sensitive   = true
-#   type        = string
-# }
+variable "base_url" {
+  description = "Base URL for the application"
+  type        = string
+}
 
-# variable "jwt_public_key" {
-#   description = "JWT Public Key"
-#   type        = string
-# }
+variable "frontend_url" {
+  description = "Frontend URL for the application"
+  type        = string
+}

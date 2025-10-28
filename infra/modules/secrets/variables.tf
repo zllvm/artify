@@ -32,3 +32,9 @@ variable "allowed_principal_arn" {
   type        = string
   default     = null
 }
+
+variable "description" {
+  description = "Optional description for the Secrets Manager secret"
+  type        = string
+  default     = null
+}

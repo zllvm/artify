@@ -6,9 +6,11 @@ on:
       environment:
         type: string
         required: true
+      container_image:
+        type: string
+        required: true
 
 env:
-  BACKEND_SERVICE_NAME: ${{ inputs.environment }}-${{ vars.SERVICE_NAME }}-backend
   TF_WORKING_DIR: ./infra/backend
 
 jobs:
@@ -16,10 +18,6 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
     steps:
-      - name: Check BACKEND_SERVICE_NAME
-        run: |
-          echo "Backend Service Name: ${{ env.BACKEND_SERVICE_NAME }}"
-
       - uses: actions/checkout@v4
 
       - name: Configure AWS credentials
@@ -47,8 +45,11 @@ jobs:
       - name: "Terraform Plan"
         run: |
           terraform plan -input=false \
-            -var="service_name=${{ env.BACKEND_SERVICE_NAME }}" \
+            -var="service_name=${{ env.SERVICE_NAME }}" \
             -var="env=${{ inputs.environment }}" \
+            -var="base_url=${{ vars.BASE_URL }}" \
+            -var="frontend_url=${{ vars.FRONTEND_URL }}" \
+            -var="container_image=${{ inputs.container_image }}" \
             -out=tfplan_aws
         working-directory: ${{ env.TF_WORKING_DIR }}
 

@@ -32,6 +32,7 @@ resource "aws_kms_alias" "this" {
 
 resource "aws_secretsmanager_secret" "config" {
   name      = local.secret_name
+  description = var.description
   kms_key_id = var.use_custom_kms ? aws_kms_key.this["main"].arn : null
   tags = var.tags
 }

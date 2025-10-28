@@ -92,6 +92,7 @@ resource "aws_ecs_service" "main" {
   network_configuration {
     subnets         = [data.aws_cloudformation_export.ecs_subnet.value]
     security_groups = [data.aws_cloudformation_export.ecs_sg.value, aws_security_group.ecs_tasks.id]
+    assign_public_ip = true
   }
 
   load_balancer {

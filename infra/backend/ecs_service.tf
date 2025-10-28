@@ -101,6 +101,8 @@ resource "aws_ecs_service" "main" {
     container_port   = var.container_port
   }
 
+  health_check_grace_period_seconds = 120
+
   depends_on = [ aws_lb_listener_rule.app, aws_lb_target_group.app ]
   
   tags = local.tags

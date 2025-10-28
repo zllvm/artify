@@ -45,7 +45,7 @@ jobs:
       - name: "Terraform Plan"
         run: |
           terraform plan -input=false \
-            -var="service_name=${{ vars.SERVICE_NAME }}" \
+            -var="service_name=${{ vars.SERVICE_NAME }}-backend" \
             -var="env=${{ inputs.environment }}" \
             -var="base_url=${{ vars.BASE_URL }}" \
             -var="frontend_url=${{ vars.FRONTEND_URL }}" \

@@ -21,7 +21,7 @@ on:
 env:
   BACKEND_SERVICE_NAME: ${{ vars.SERVICE_NAME }}-backend
   GITHUB_IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/${{ vars.SERVICE_NAME }}
-  AWS_IMAGE_NAME: ${{ secrets.AWS_ML_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/${{ inputs.environment }}-${{ vars.SERVICE_NAME }}-backend
+  AWS_IMAGE_NAME: ${{ vars.AWS_ML_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/${{ inputs.environment }}-${{ vars.SERVICE_NAME }}-backend
 
 jobs:
   # backend-ci:

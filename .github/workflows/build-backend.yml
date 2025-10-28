@@ -71,7 +71,7 @@ jobs:
         run: |
           PKG_VERSION=$(node -p "require('./apps/backend/package.json').version")
           SHORT_SHA=${GITHUB_SHA::7}
-          DATE=$(date +'%Y%m%d')
+          DATE=$(date +'%y%m%d')
           VERSION=v${PKG_VERSION}-${DATE}-${SHORT_SHA}
           echo "VERSION=${VERSION}" >> $GITHUB_ENV
           echo "version=${VERSION}" >> $GITHUB_OUTPUT

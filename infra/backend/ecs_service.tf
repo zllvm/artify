@@ -82,28 +82,28 @@ resource "aws_lb_listener_rule" "app" {
   }
 }
 
-resource "aws_ecs_service" "main" {
-  name            = local.service_name
-  cluster         = data.aws_cloudformation_export.ecs_cluster.value
-  task_definition = aws_ecs_task_definition.main.arn
-  desired_count   = var.desired_count
-  launch_type     = "FARGATE"
+# resource "aws_ecs_service" "main" {
+#   name            = local.service_name
+#   cluster         = data.aws_cloudformation_export.ecs_cluster.value
+#   task_definition = aws_ecs_task_definition.main.arn
+#   desired_count   = var.desired_count
+#   launch_type     = "FARGATE"
 
-  network_configuration {
-    subnets         = [data.aws_cloudformation_export.ecs_subnet.value]
-    security_groups = [data.aws_cloudformation_export.ecs_sg.value, aws_security_group.ecs_tasks.id]
-  }
+#   network_configuration {
+#     subnets         = [data.aws_cloudformation_export.ecs_subnet.value]
+#     security_groups = [data.aws_cloudformation_export.ecs_sg.value, aws_security_group.ecs_tasks.id]
+#   }
 
-  load_balancer {
-    target_group_arn = aws_lb_target_group.app.arn
-    container_name   = local.service_name
-    container_port   = var.container_port
-  }
+#   load_balancer {
+#     target_group_arn = aws_lb_target_group.app.arn
+#     container_name   = local.service_name
+#     container_port   = var.container_port
+#   }
 
-  depends_on = [ aws_lb_listener_rule.app, aws_lb_target_group.app ]
+#   depends_on = [ aws_lb_listener_rule.app, aws_lb_target_group.app ]
   
-  tags = local.tags
-}
+#   tags = local.tags
+# }
 
 
 output "ecs_service_name" {

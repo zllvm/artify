@@ -57,10 +57,6 @@ resource "aws_lb_target_group" "app" {
   health_check {
     path = var.health_endpoint
     port = var.container_port
-    interval            = 60
-    timeout             = 10
-    unhealthy_threshold = 10
-    healthy_threshold   = 2
   }
 }
 
@@ -104,8 +100,6 @@ resource "aws_ecs_service" "main" {
     container_name   = var.service_name
     container_port   = var.container_port
   }
-
-  health_check_grace_period_seconds = 600
 
   depends_on = [ aws_lb_listener_rule.app, aws_lb_target_group.app ]
   

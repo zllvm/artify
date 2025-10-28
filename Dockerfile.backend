@@ -19,19 +19,12 @@ RUN mkdir -p /app/uploads && chown -R 65532:65532 /app/uploads
 
 RUN pnpm deploy --filter backend --prod /app/deploy
 
-# RUN export CI=true && cd apps/backend && pnpm prune --prod
-
 # --- Runtime stage ---
 FROM gcr.io/distroless/nodejs22-debian12
 WORKDIR /app
 
 COPY --from=builder /app/deploy ./
 COPY --from=builder /app/uploads ./uploads
-# COPY --from=builder /app/apps/backend/dist ./dist
-# COPY --from=builder /app/pnpm-lock.yaml ./
-# COPY --from=builder /app/node_modules ./node_modules
-# COPY --from=builder /app/apps/backend/package.json ./apps/backend/
-# COPY --from=builder /app/package*.json ./
 
 USER nonroot
 CMD ["dist/server.js"]

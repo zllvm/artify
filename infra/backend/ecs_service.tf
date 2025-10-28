@@ -57,6 +57,10 @@ resource "aws_lb_target_group" "app" {
   health_check {
     path = var.health_endpoint
     port = var.container_port
+    interval            = 60
+    timeout             = 10
+    unhealthy_threshold = 10
+    healthy_threshold   = 2
   }
 }
 

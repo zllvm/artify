@@ -80,6 +80,8 @@ resource "aws_lb_listener_rule" "app" {
     type             = "forward"
     target_group_arn = aws_lb_target_group.app.arn
   }
+
+  depends_on = [aws_lb_target_group.app]
 }
 
 resource "aws_ecs_service" "main" {
@@ -101,7 +103,7 @@ resource "aws_ecs_service" "main" {
     container_port   = var.container_port
   }
 
-  depends_on = [ aws_lb_listener_rule.app, aws_lb_target_group.app ]
+  depends_on = [ aws_lb_listener_rule.app ]
   
   tags = local.tags
 }

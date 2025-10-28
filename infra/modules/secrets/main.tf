@@ -13,7 +13,7 @@ terraform {
 # ─────────────────────────────────────────────────────────────
 
 resource "aws_kms_key" "this" {
-  count                   = var.use_custom_kms ? 1 : 0
+  for_each                = var.use_custom_kms ? { main = true } : {}
   description             = "KMS key for ${local.secret_name} secrets"
   deletion_window_in_days = 10
   enable_key_rotation     = true
@@ -21,9 +21,9 @@ resource "aws_kms_key" "this" {
 }
 
 resource "aws_kms_alias" "this" {
-  count        = var.use_custom_kms ? 1 : 0
+  for_each      = var.use_custom_kms ? { main = true } : {}
   name          = "alias/${local.secret_name}"
-  target_key_id = aws_kms_key.this.key_id
+  target_key_id = aws_kms_key.this["main"].key_id
 }
 
 # ─────────────────────────────────────────────────────────────
@@ -32,7 +32,7 @@ resource "aws_kms_alias" "this" {
 
 resource "aws_secretsmanager_secret" "config" {
   name      = local.secret_name
-  kms_key_id = aws_kms_key.this.arn
+  kms_key_id = var.use_custom_kms ? aws_kms_key.this["main"].arn : null
   tags = var.tags
 }
 
@@ -58,7 +58,7 @@ data "aws_iam_policy_document" "read_config" {
       sid      = "UseCustomKmsKey"
       effect   = "Allow"
       actions  = ["kms:Decrypt", "kms:DescribeKey"]
-      resources = [aws_kms_key.this[0].arn]
+      resources = [aws_kms_key.this["main"].arn]
     }
   }
 }
@@ -95,5 +95,8 @@ resource "aws_secretsmanager_secret_policy" "restrict_access" {
 # ─────────────────────────────────────────────────────────────
 
 output "secret_arn"    { value = aws_secretsmanager_secret.config.arn }
-output "kms_key_arn"   { value = aws_kms_key.this.arn }
+output "kms_key_arn" {
+  description = "ARN of the KMS key (if custom one used)"
+  value       = var.use_custom_kms ? aws_kms_key.this["main"].arn : null
+}
 output "read_policy_arn" { value = aws_iam_policy.read_config.arn }

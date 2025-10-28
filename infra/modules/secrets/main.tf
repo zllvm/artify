@@ -8,7 +8,12 @@ terraform {
   }
 }
 
+# ─────────────────────────────────────────────────────────────
+# KMS (optional)
+# ─────────────────────────────────────────────────────────────
+
 resource "aws_kms_key" "this" {
+  count                   = var.use_custom_kms ? 1 : 0
   description             = "KMS key for ${local.secret_name} secrets"
   deletion_window_in_days = 10
   enable_key_rotation     = true
@@ -16,9 +21,14 @@ resource "aws_kms_key" "this" {
 }
 
 resource "aws_kms_alias" "this" {
+  count        = var.use_custom_kms ? 1 : 0
   name          = "alias/${local.secret_name}"
   target_key_id = aws_kms_key.this.key_id
 }
+
+# ─────────────────────────────────────────────────────────────
+# Secrets Manager secret
+# ─────────────────────────────────────────────────────────────
 
 resource "aws_secretsmanager_secret" "config" {
   name      = local.secret_name
@@ -31,6 +41,10 @@ resource "aws_secretsmanager_secret_version" "config" {
   secret_string = local.secret_json
 }
 
+# ─────────────────────────────────────────────────────────────
+# IAM policy to read the secret (and decrypt if custom key used)
+# ─────────────────────────────────────────────────────────────
+
 data "aws_iam_policy_document" "read_config" {
   statement {
     sid      = "ReadConfigSecret"
@@ -38,11 +52,14 @@ data "aws_iam_policy_document" "read_config" {
     actions  = ["secretsmanager:GetSecretValue","secretsmanager:DescribeSecret"]
     resources = [aws_secretsmanager_secret.config.arn]
   }
-  statement {
-    sid      = "UseKms"
-    effect   = "Allow"
-    actions  = ["kms:Decrypt","kms:DescribeKey"]
-    resources = [aws_kms_key.this.arn]
+  dynamic "statement" {
+    for_each = var.use_custom_kms ? [1] : []
+    content {
+      sid      = "UseCustomKmsKey"
+      effect   = "Allow"
+      actions  = ["kms:Decrypt", "kms:DescribeKey"]
+      resources = [aws_kms_key.this[0].arn]
+    }
   }
 }
 
@@ -50,6 +67,32 @@ resource "aws_iam_policy" "read_config" {
   name   = "${local.secret_name}-read-config"
   policy = data.aws_iam_policy_document.read_config.json
 }
+
+resource "aws_secretsmanager_secret_policy" "restrict_access" {
+  count      = var.allowed_principal_arn != null ? 1 : 0
+  secret_arn = aws_secretsmanager_secret.config.arn
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid: "AllowSpecificPrincipalOnly",
+        Effect: "Allow",
+        Principal = { AWS = var.allowed_principal_arn },
+        Action = [
+          "secretsmanager:GetSecretValue",
+          "secretsmanager:DescribeSecret"
+        ],
+        Resource = aws_secretsmanager_secret.config.arn
+      }
+    ]
+  })
+}
+
+
+# ─────────────────────────────────────────────────────────────
+# Outputs
+# ─────────────────────────────────────────────────────────────
 
 output "secret_arn"    { value = aws_secretsmanager_secret.config.arn }
 output "kms_key_arn"   { value = aws_kms_key.this.arn }

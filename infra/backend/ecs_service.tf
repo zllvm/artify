@@ -62,7 +62,7 @@ resource "aws_lb_target_group" "app" {
 
 resource "aws_lb_listener_rule" "app" {
   listener_arn = data.aws_cloudformation_export.elb_listener.value
-  priority     = 3
+  priority     = 4
 
   condition {
     host_header {

@@ -50,6 +50,7 @@ jobs:
             -var="base_url=${{ vars.BASE_URL }}" \
             -var="frontend_url=${{ vars.FRONTEND_URL }}" \
             -var="container_image=${{ inputs.container_image }}" \
+            -var="api_domain_name=${{ vars.DOMAIN_NAME }}" \
             -out=tfplan_aws
         working-directory: ${{ env.TF_WORKING_DIR }}
 

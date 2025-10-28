@@ -41,3 +41,20 @@ variable "frontend_url" {
   description = "Frontend URL for the application"
   type        = string
 }
+
+variable "desired_count" {
+  description = "Desired count of tasks"
+  type        = number
+  default     = 1
+}
+
+variable "api_domain_name" {
+  description = "Api domain name"
+  type        = string
+}
+
+variable "health_endpoint" {
+  description = "Api domain name"
+  type        = string
+  default     = "/api/health"
+}

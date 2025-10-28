@@ -74,8 +74,13 @@ resource "aws_iam_role_policy_attachment" "ecs_execution_role_policy" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
+resource "aws_iam_role_policy_attachment" "ecs_execution_secret_access" {
+  role       = aws_iam_role.ecs_task_execution_role.name
+  policy_arn = module.json_secret.read_policy_arn
+}
+
 resource "aws_ecs_task_definition" "backend" {
-  family                   = "${local.service_name}-backend"
+  family                   = "${local.service_name}"
   network_mode              = "awsvpc"
   requires_compatibilities  = ["FARGATE"]
   cpu                       = var.cpu
@@ -109,11 +114,17 @@ resource "aws_ecs_task_definition" "backend" {
           value = var.frontend_url
         }
       ]
+      secrets = [
+        for key in local.secret_keys : {
+          name      = key
+          valueFrom = "${module.json_secret.secret_arn}:${key}::"
+        }
+      ]
       logConfiguration = {
         logDriver = "awslogs"
         options = {
           awslogs-group         = aws_cloudwatch_log_group.main.name
-          awslogs-region        = data.aws_region.current.name
+          awslogs-region        = data.aws_region.current.region
           awslogs-stream-prefix = local.service_name
         }
       }

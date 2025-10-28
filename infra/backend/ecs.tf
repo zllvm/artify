@@ -106,7 +106,7 @@ resource "aws_ecs_task_definition" "backend" {
         },
         {
           name  = "FRONTEND_URL"
-          value = var.frontendUrl
+          value = var.frontend_url
         }
       ]
       logConfiguration = {

@@ -6,6 +6,13 @@ on:
       environment:
         type: string
         required: true
+    outputs:
+      container_image:
+        description: "The full ECR image URL with version tag"
+        value: ${{ jobs.build.outputs.container_image }}
+      version:
+        description: "The computed app version"
+        value: ${{ jobs.build.outputs.version }}
 
 # permissions:
 #   contents: read

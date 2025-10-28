@@ -58,6 +58,11 @@ resource "aws_lb_target_group" "app" {
     path = var.health_endpoint
     port = var.container_port
   }
+
+  lifecycle {
+    prevent_destroy = false
+    create_before_destroy = true
+  }
 }
 
 resource "aws_lb_listener_rule" "app" {

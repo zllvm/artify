@@ -27,7 +27,7 @@ WORKDIR /app
 COPY --from=builder /app/deploy ./
 COPY --from=builder /app/uploads ./uploads
 
-USER nonroot
+# USER nonroot
 # CMD ["dist/server.js"]
 CMD ["node", "dist/server.js"]
 

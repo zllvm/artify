@@ -1,6 +1,6 @@
 module "json_secret" {
   source = "../modules/secrets"
-  name_prefix = var.service_name
+  name_prefix = local.service_name
   description = "Contains artify secrets"
   # secrets = {
   #   GOOGLE_CLIENT_ID = var.google_client_id

@@ -22,6 +22,8 @@ const config = {
   openaiApiKey: process.env.OPENAI_API_KEY as string,
   port: process.env.PORT ? parseInt(process.env.PORT, 10) : 3001,
   env: process.env.NODE_ENV || "development",
+  logLevel: process.env.LOG_LEVEL || "debug",
+  isProd: process.env.NODE_ENV === "production",
 };
 
 export default config;

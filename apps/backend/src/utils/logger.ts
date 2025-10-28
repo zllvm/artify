@@ -1,3 +1,7 @@
+import pino, { Logger, LoggerOptions } from "pino";
+
+import config from "../config/environment.js";
+
 export interface LogContext {
   userId?: string;
   paintingId?: string;
@@ -5,37 +9,45 @@ export interface LogContext {
   [key: string]: unknown;
 }
 
-class Logger {
-  private formatMessage(
-    level: string,
-    message: string,
-    context?: LogContext
-  ): string {
-    const timestamp = new Date().toISOString();
-    const contextStr = context ? ` | ${JSON.stringify(context)}` : "";
-    return `[${timestamp}] ${level.toUpperCase()}: ${message}${contextStr}`;
+class AppLogger {
+  private logger: Logger;
+
+  constructor() {
+    const options: LoggerOptions = {
+      level: config.logLevel,
+      transport: config.isProd
+        ? undefined // JSON logs for CloudWatch
+        : {
+            target: "pino-pretty",
+            options: {
+              colorize: true,
+              translateTime: "SYS:standard",
+              ignore: "pid,hostname",
+            },
+          },
+    };
+
+    this.logger = pino(options);
   }
 
   info(message: string, context?: LogContext): void {
-    console.log(this.formatMessage("info", message, context));
+    this.logger.info(context ?? {}, message);
+  }
+
+  warn(message: string, context?: LogContext): void {
+    this.logger.warn(context ?? {}, message);
   }
 
   error(message: string, error?: Error, context?: LogContext): void {
     const errorContext = error
       ? { ...context, error: error.message, stack: error.stack }
       : context;
-    console.error(this.formatMessage("error", message, errorContext));
-  }
-
-  warn(message: string, context?: LogContext): void {
-    console.warn(this.formatMessage("warn", message, context));
+    this.logger.error(errorContext ?? {}, message);
   }
 
   debug(message: string, context?: LogContext): void {
-    if (process.env.NODE_ENV === "development") {
-      console.debug(this.formatMessage("debug", message, context));
-    }
+    this.logger.debug(context ?? {}, message);
   }
 }
 
-export const logger = new Logger();
+export const logger = new AppLogger();

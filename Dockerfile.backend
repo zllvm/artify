@@ -29,6 +29,6 @@ COPY --from=builder /app/uploads ./uploads
 
 USER nonroot
 # CMD ["dist/server.js"]
-CMD ["node", "index.js"]
+CMD ["node", "dist/server.js"]
 
 

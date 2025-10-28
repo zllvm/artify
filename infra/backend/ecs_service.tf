@@ -18,6 +18,10 @@ data "aws_cloudformation_export" "elb_sg" {
   name = "ecs-common-lb-sg"
 }
 
+data "aws_cloudformation_export" "elb_listener" {
+  name = "ecs-common-lb-listener"
+}
+
 resource "aws_security_group" "ecs_tasks" {
   name        = "${local.service_name}-ecs-tasks-sg"
   description = "Allow inbound traffic to ECS tasks"

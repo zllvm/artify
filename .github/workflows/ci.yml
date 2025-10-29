@@ -18,7 +18,7 @@ jobs:
   #     app: frontend
   push-frontend:
     # needs: build-frontend
-    uses: ./.github/workflows/templates/push.yml
+    uses: ./.github/workflows/push-template.yml
     secrets: inherit
     with:
       service_name: ${{ vars.SERVICE_NAME }}

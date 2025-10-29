@@ -16,22 +16,22 @@ jobs:
   #   secrets: inherit
   #   with:
   #     app: frontend
-  # push-frontend:
-  #   # needs: build-frontend
-  #   uses: ./.github/workflows/push-template.yml
-  #   secrets: inherit
-  #   with:
-  #     service_name: ${{ vars.SERVICE_NAME }}
-  #     app: frontend
-  #     dockerfile: Dockerfile.frontend
-  #     environment: prod
+  push-frontend:
+    # needs: build-frontend
+    uses: ./.github/workflows/push-template.yml
+    secrets: inherit
+    with:
+      service_name: ${{ vars.SERVICE_NAME }}
+      app: frontend
+      dockerfile: Dockerfile.frontend
+      environment: prod
   deploy-frontend:
-    # needs: push-frontend
+    needs: push-frontend
     uses: ./.github/workflows/deploy-frontend.yml
     secrets: inherit
     with:
       environment: prod
-      # container_image: ${{ needs.push-frontend.outputs.container_image }}
+      container_image: ${{ needs.push-frontend.outputs.container_image }}
   # build-backend:
   #   uses: ./.github/workflows/build-backend.yml
   #   secrets: inherit

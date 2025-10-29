@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 
+import { Platform } from "@artify/shared";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import {
   faFacebookF,
@@ -16,13 +17,6 @@ import styles from "./IntegrationArea.module.css";
 import type { Share } from "@artify/shared";
 import type { IconName } from "@fortawesome/fontawesome-svg-core";
 library.add(faPinterest, faFacebookF, faInstagram, faPalette);
-
-enum Platform {
-  Artify = "artify",
-  Pinterest = "pinterest",
-  Facebook = "facebook",
-  Instagram = "instagram",
-}
 
 const integrations = [
   Platform.Artify,
@@ -47,14 +41,18 @@ export default function IntegrationArea({
   onClose,
 }: Props) {
   const [selectedPlatform, setSelectedPlatform] = useState<Platform | null>(
-    null
+    share ? share.platform : null
   );
 
   useEffect(() => {
-    if (share) {
-      setSelectedPlatform(share.platform as Platform);
+    if (!share) return;
+    if (selectedPlatform !== share.platform) {
+      const frame = requestAnimationFrame(() =>
+        setSelectedPlatform(share.platform)
+      );
+      return () => cancelAnimationFrame(frame);
     }
-  }, [share]);
+  }, [share, selectedPlatform]);
 
   const handleShare = (platform: Platform) => {
     setSelectedPlatform(platform);

@@ -1,13 +1,15 @@
 "use client";
+
 import { useEffect, useState } from "react";
 
 export function useTheme() {
-  const [theme, setTheme] = useState<"light" | "dark">("light");
+  const [theme, setTheme] = useState<"light" | "dark">(() => {
+    return localStorage.getItem("theme") === "dark" ? "dark" : "light";
+  });
 
   useEffect(() => {
-    const stored = localStorage.getItem("theme");
-    if (stored === "dark") setTheme("dark");
-  }, []);
+    localStorage.setItem("theme", theme);
+  }, [theme]);
 
   return { theme, setTheme };
 }

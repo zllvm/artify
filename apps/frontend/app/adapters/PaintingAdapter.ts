@@ -26,7 +26,8 @@ export class PaintingAdapter {
       credentials: "include",
     });
 
-    const json = await res.json();
+    const json = (await res.json()) as ApiResponse<UploadPaintingResponse>;
+
     if (!res.ok) {
       throw new Error(json.error || "Upload failed");
     }

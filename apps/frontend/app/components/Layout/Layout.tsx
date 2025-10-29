@@ -21,17 +21,21 @@ export default function Layout({ children }: LayoutProps) {
   const openSidebar = useCallback(
     (e: React.MouseEvent<HTMLElement>) => {
       if (isInteractiveClick(e)) return;
-      isMobile
-        ? collapsedMobile && setCollapsedMobile(false)
-        : collapsedDesktop && setCollapsedDesktop(false);
+      if (isMobile) {
+        if (collapsedMobile) setCollapsedMobile(false);
+      } else {
+        if (collapsedDesktop) setCollapsedDesktop(false);
+      }
     },
     [isMobile, collapsedMobile, collapsedDesktop]
   );
 
   const closeSidebar = useCallback(() => {
-    isMobile
-      ? !collapsedMobile && setCollapsedMobile(true)
-      : !collapsedDesktop && setCollapsedDesktop(true);
+    if (isMobile) {
+      if (!collapsedMobile) setCollapsedMobile(true);
+    } else {
+      if (!collapsedDesktop) setCollapsedDesktop(true);
+    }
   }, [isMobile, collapsedDesktop, collapsedMobile]);
 
   const showCollapseButton =

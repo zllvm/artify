@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 
 import {
   PaintingAdapter,
@@ -20,7 +20,7 @@ export enum UploadStatus {
 type UseUploadPaintingResult = {
   uploadMethod: UploadMethod;
   status: UploadStatus;
-  setUploadMethod: React.Dispatch<React.SetStateAction<UploadMethod>>;
+  handleSetUploadMethod: (method: UploadMethod) => void;
   fileMetadata: ImageMetadata | null;
   urlMetadata: ImageMetadata | null;
   isValidatingUrl: boolean;
@@ -77,9 +77,14 @@ export function useUploadPainting(): UseUploadPaintingResult {
     setImageError,
   });
 
-  useEffect(() => {
+  const handleSetUploadMethod = (method: UploadMethod) => {
+    setUploadMethod(method);
     setImageError(null);
-  }, [uploadMethod]);
+  };
+
+  // useEffect(() => {
+  //   setImageError(null);
+  // }, [uploadMethod]);
 
   // --- Upload ------------------------------------------------------
   const handleSubmit = useCallback(
@@ -102,7 +107,7 @@ export function useUploadPainting(): UseUploadPaintingResult {
         // await new Promise((r) => setTimeout(r, 10000));
 
         const data = await PaintingAdapter.uploadPainting({
-          file: isFile ? file ?? undefined : undefined,
+          file: isFile ? (file ?? undefined) : undefined,
           imageUrl: !isFile ? imageUrl : undefined,
         });
         setUploadedPainting(data);
@@ -130,7 +135,7 @@ export function useUploadPainting(): UseUploadPaintingResult {
   return {
     uploadMethod,
     status,
-    setUploadMethod,
+    handleSetUploadMethod,
     fileMetadata,
     urlMetadata,
     isValidatingUrl,

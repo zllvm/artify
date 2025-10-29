@@ -2,10 +2,12 @@
   "name": "frontend",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "NODE_OPTIONS='--inspect' next dev -H 0.0.0.0 --turbopack",
     "dev:max": "NODE_OPTIONS='--inspect' dotenv -e .env.max -- next dev -H 0.0.0.0 --turbopack",
     "build": "next build --turbopack",
+    "lint": "eslint .",
     "start": "next start",
     "prod": "next start"
   },

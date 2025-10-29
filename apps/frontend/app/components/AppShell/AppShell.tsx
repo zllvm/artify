@@ -26,7 +26,7 @@ function LoginModal({ onClose }: LoginModalProps) {
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const [showLogin, setShowLogin] = useState(false);
-  const { user, loading, login } = useAuth();
+  const { user, loading } = useAuth();
 
   if (loading) {
     return <div className={styles.loading}>Loading...</div>;

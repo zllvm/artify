@@ -32,12 +32,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const refreshUser = async () => {
     try {
-      console.log(API_URL);
       const res = await fetch(`${API_URL}/api/auth/me`, {
         credentials: "include",
       });
       if (res.ok) {
-        setUser(await res.json());
+        const user = (await res.json()) as User;
+        setUser(user);
       } else {
         setUser(null);
       }
@@ -66,7 +66,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
-    refreshUser();
+    void (async () => {
+      await refreshUser();
+    })();
   }, []);
 
   return (

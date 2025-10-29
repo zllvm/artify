@@ -92,18 +92,7 @@ export default function ArtifyIntegration({
   const isPublished = share?.isPublished ?? false;
   const isReadonly = isPublished;
 
-  if (!user) {
-    return (
-      <div className={styles.content}>
-        <div className={styles.title}>
-          <h2>Please log in to share your artwork</h2>
-        </div>
-      </div>
-    );
-  }
-
   useEffect(() => {
-    console.log("ArtifyIntegration received share:", share);
     if (share) {
       setAlias(share.alias || "");
       setDescription(share.description || "");
@@ -141,7 +130,7 @@ export default function ArtifyIntegration({
         console.error("Error fetching suggested description:", error);
       }
     };
-    fetchedDescription();
+    void fetchedDescription();
   };
 
   const SuggestTags = () => {
@@ -158,7 +147,7 @@ export default function ArtifyIntegration({
         console.error("Error fetching suggested tags:", error);
       }
     };
-    fetchedTags();
+    void fetchedTags();
   };
 
   const handleAddTag = () => {
@@ -177,11 +166,11 @@ export default function ArtifyIntegration({
   };
 
   // Add a tag to the end
-  const appendTag = (tag: string) => {
-    if (tag.trim() && !tags.includes(tag.trim())) {
-      setTags([...tags, tag.trim()]);
-    }
-  };
+  // const appendTag = (tag: string) => {
+  //   if (tag.trim() && !tags.includes(tag.trim())) {
+  //     setTags([...tags, tag.trim()]);
+  //   }
+  // };
 
   const handleRemoveTag = (tagToRemove: string) => {
     setTags(tags.filter((tag) => tag !== tagToRemove));
@@ -208,12 +197,11 @@ export default function ArtifyIntegration({
         });
         if (updated) {
           onUpdated?.(updated);
-          console.log("Updated share:", updated);
         }
       } else {
         const created = await ShareAdapter.create({
           paintingId,
-          userId: user.name ?? "foo",
+          userId: user?.name ?? "foo",
           alias: alias.trim() || undefined,
           description,
           tags,
@@ -223,7 +211,6 @@ export default function ArtifyIntegration({
 
         if (created) {
           onCreated?.(created);
-          console.log("Created share:", created);
         }
 
         onClose?.();
@@ -261,6 +248,16 @@ export default function ArtifyIntegration({
       minute: "2-digit",
       hour12: false,
     });
+  }
+
+  if (!user) {
+    return (
+      <div className={styles.content}>
+        <div className={styles.title}>
+          <h2>Please log in to share your artwork</h2>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -456,7 +453,7 @@ export default function ArtifyIntegration({
           {!isReadonly && (
             <button
               className="btn btn--subtle btn--danger btn--slim"
-              onClick={() => handleDelete()}
+              onClick={() => void handleDelete()}
               disabled={loading}
             >
               <FontAwesomeIcon icon={faTrash} /> Delete
@@ -475,14 +472,14 @@ export default function ArtifyIntegration({
             <>
               <button
                 className="btn btn--subtle"
-                onClick={() => handleSubmit("draft")}
+                onClick={() => void handleSubmit("draft")}
                 disabled={loading}
               >
                 {isExisting ? "Save" : "Save Draft"}
               </button>
               <button
                 className="btn btn--act"
-                onClick={() => handleSubmit("publish")}
+                onClick={() => void handleSubmit("publish")}
                 disabled={loading}
               >
                 Publish
@@ -493,7 +490,7 @@ export default function ArtifyIntegration({
           {isReadonly && (
             <button
               className="btn btn--subtle"
-              onClick={() => handleUnpublish()}
+              onClick={() => void handleUnpublish()}
               disabled={loading}
             >
               <FontAwesomeIcon
@@ -508,7 +505,7 @@ export default function ArtifyIntegration({
       {showChangeAlias && (
         <ChangeAliasModal
           initialAlias={alias || ""}
-          onConfirm={handleSaveAlias}
+          onConfirm={(newAlias) => void handleSaveAlias(newAlias)}
           onCancel={() => setShowChangeAlias(false)}
         />
       )}

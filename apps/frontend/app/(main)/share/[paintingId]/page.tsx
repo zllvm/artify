@@ -60,7 +60,10 @@ function ChangeTitleModal({
         />
         <div className={styles.modalActions}>
           <div className={styles.extraActions}>
-            <button className={`btn btn--ai`} onClick={suggestTitle}>
+            <button
+              className={`btn btn--ai`}
+              onClick={() => void suggestTitle()}
+            >
               <FontAwesomeIcon
                 icon={faLightbulb}
                 className={styles.iconMarginRight}
@@ -177,7 +180,7 @@ export default function SharePage() {
       }
     }
 
-    fetchManifest();
+    void fetchManifest();
   }, [paintingId]);
 
   useEffect(() => {
@@ -192,17 +195,16 @@ export default function SharePage() {
         }
 
         setPainting(painting);
-        console.log("Fetched painting:", painting);
       } catch (error) {
         console.error("Error fetching painting:", error);
       }
     }
 
     if (paintingId) {
-      fetchPainting();
-      setIsNotFound(false);
+      void fetchPainting();
+      requestAnimationFrame(() => setIsNotFound(false));
     } else {
-      setIsNotFound(true);
+      requestAnimationFrame(() => setIsNotFound(true));
     }
   }, [paintingId]);
 
@@ -218,7 +220,7 @@ export default function SharePage() {
       });
       if (updated) setPainting(updated);
       setShowChangeTitle(false);
-    } catch (err) {
+    } catch {
       setShowChangeTitle(false);
     }
   }
@@ -229,7 +231,7 @@ export default function SharePage() {
       const updated = await PaintingAdapter.updateManifest(newDescription);
       if (updated) setManifest(updated);
       setShowChangeManifest(false);
-    } catch (err) {
+    } catch {
       setShowChangeManifest(false);
     }
   }
@@ -254,7 +256,7 @@ export default function SharePage() {
               <div className={styles.title}>
                 <div className={styles.label}>Artwork title</div>
                 <div className={styles.value}>
-                  "{painting.title || "A Mystery on Canvas"}"
+                  &quot;{painting.title || "A Mystery on Canvas"}&quot;
                 </div>
               </div>
               <div className={styles.changeTitle}>
@@ -296,7 +298,7 @@ export default function SharePage() {
           <IntegrationArea
             paintingId={paintingId}
             share={activeShare || undefined}
-            onCreated={(_: Share) => setRefreshKey((k) => k + 1)}
+            onCreated={() => setRefreshKey((k) => k + 1)}
             onUpdated={(share: Share) => {
               setRefreshKey((k) => k + 1);
               setActiveShare(share);
@@ -316,14 +318,14 @@ export default function SharePage() {
           <ChangeTitleModal
             paintingId={paintingId}
             initialTitle={painting.title || ""}
-            onConfirm={handleSaveTitle}
+            onConfirm={(title) => void handleSaveTitle(title)}
             onCancel={() => setShowChangeTitle(false)}
           />
         )}
         {showChangeManifest && (
           <ChangeManifestModal
             initialDescription={manifest?.content || ""}
-            onConfirm={handleSaveManifest}
+            onConfirm={(desc) => void handleSaveManifest(desc)}
             onCancel={() => setShowChangeManifest(false)}
           />
         )}

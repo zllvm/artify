@@ -9,13 +9,14 @@ import { UploadStatus, useUploadPainting } from "@/hooks/useUploadPainting";
 import styles from "./UploadPainting.module.css";
 
 export default function UploadPainting() {
-  const [sidebarVisible, setSidebarVisible] = useState(true);
   const [isUnloading, setIsUnloading] = useState(false);
   const router = useRouter();
 
+  const sidebarVisible = true;
+
   const {
     uploadMethod,
-    setUploadMethod,
+    handleSetUploadMethod,
     status,
     fileMetadata,
     urlMetadata,
@@ -46,15 +47,15 @@ export default function UploadPainting() {
       : filename.slice(0, maxLength) + "...";
 
   useEffect(() => {
-    if (!isUploading) {
+    if (isUploading) return;
+    const timeoutStart = requestAnimationFrame(() => {
       setIsUnloading(true);
-      console.log("Starting unloading animation");
       const timeout = setTimeout(() => {
         setIsUnloading(false);
-        console.log("Unloading animation ended");
       }, 2000);
       return () => clearTimeout(timeout);
-    }
+    });
+    return () => cancelAnimationFrame(timeoutStart);
   }, [isUploading]);
 
   useEffect(() => {
@@ -69,7 +70,10 @@ export default function UploadPainting() {
         !sidebarVisible ? styles.sidebarHidden : ""
       }`}
     >
-      <form className={styles.uploadForm} onSubmit={handleSubmit}>
+      <form
+        className={styles.uploadForm}
+        onSubmit={(e) => void handleSubmit(e)}
+      >
         <h2
           className={`${styles.formTitle} ${isUploading ? styles.loading : ""}
           }  ${isUnloading ? styles.unloading : ""}`}
@@ -189,7 +193,7 @@ export default function UploadPainting() {
                 className={`${styles.tabButton} ${
                   uploadMethod === UploadMethod.File ? styles.active : ""
                 }`}
-                onClick={() => setUploadMethod(UploadMethod.File)}
+                onClick={() => handleSetUploadMethod(UploadMethod.File)}
               >
                 Image File
               </button>
@@ -198,7 +202,7 @@ export default function UploadPainting() {
                 className={`${styles.tabButton} ${
                   uploadMethod === UploadMethod.Url ? styles.active : ""
                 }`}
-                onClick={() => setUploadMethod(UploadMethod.Url)}
+                onClick={() => handleSetUploadMethod(UploadMethod.Url)}
               >
                 Image URL
               </button>

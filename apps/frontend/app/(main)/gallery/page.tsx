@@ -22,7 +22,7 @@ export default function GalleryPage() {
       }
     }
 
-    fetchPaintings();
+    void fetchPaintings();
   }, []);
 
   return (

@@ -1,9 +1,7 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { ImageAdapter } from "@/adapters/ImageAdapter";
 import { formatFileSize } from "@artify/shared/utils/common";
-
-// import { getFilenameFromUrl } from "@artify/shared/utils/imageUtils";
 
 type Props = {
   file: File | null;
@@ -33,19 +31,50 @@ export function useImageMetadata({
   const [isUrlImageValid, setIsUrlImageValid] = useState(false);
   const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
 
+  const extractUrlMetadata = useCallback(
+    async (url: string) => {
+      if (!url) return;
+      setIsValidatingUrl(true);
+      setIsUrlImageValid(false);
+      setImageError(null);
+
+      try {
+        const data = await ImageAdapter.fetchProxyImage(url);
+        setUrlMetadata({
+          width: data.width,
+          height: data.height,
+          size: data.size,
+          format: data.originalFormat || data.outputFormat,
+          filename: data.filename,
+        });
+        setImagePreviewUrl(data.image);
+        setIsUrlImageValid(true);
+      } catch (err) {
+        console.error("Image metadata fetch failed:", err);
+        setImageError("Unable to load image from URL - check the link");
+        setIsUrlImageValid(false);
+      } finally {
+        setIsValidatingUrl(false);
+      }
+    },
+    [setImageError]
+  );
+
   useEffect(() => {
     if (file && filePreviewUrl) extractFileMetadata(file, filePreviewUrl);
   }, [file, filePreviewUrl]);
 
   useEffect(() => {
     if (imageUrl && imageUrl.startsWith("http")) {
-      extractUrlMetadata(imageUrl);
+      void (async () => {
+        await extractUrlMetadata(imageUrl);
+      })();
     } else if (!imageUrl) {
       setUrlMetadata(null);
       setIsUrlImageValid(false);
       setImagePreviewUrl(null);
     }
-  }, [imageUrl]);
+  }, [imageUrl, extractUrlMetadata]);
 
   const extractFileMetadata = (file: File, dataUrl: string) => {
     const img = new Image();
@@ -58,37 +87,6 @@ export function useImageMetadata({
         filename: file.name,
       });
     img.src = dataUrl;
-  };
-
-  const extractUrlMetadata = async (url: string) => {
-    if (!url) return;
-    setIsValidatingUrl(true);
-    setIsUrlImageValid(false);
-    setImageError(null);
-
-    // const filename = getFilenameFromUrl(url);
-    // let fileSize = "Unknown";
-
-    try {
-      const data = await ImageAdapter.fetchProxyImage(url);
-
-      setUrlMetadata({
-        width: data.width,
-        height: data.height,
-        size: data.size,
-        format: data.originalFormat || data.outputFormat,
-        filename: data.filename,
-      });
-
-      setImagePreviewUrl(data.image);
-      setIsUrlImageValid(true);
-    } catch (err) {
-      console.error("Image metadata fetch failed:", err);
-      setImageError("Unable to load image from URL - check the link");
-      setIsUrlImageValid(false);
-    } finally {
-      setIsValidatingUrl(false);
-    }
   };
 
   return {

@@ -1,15 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { ShareAdapter } from "@/adapters/ShareAdapter";
-import {
-  faCircle,
-  faCloudUploadAlt,
-  faEyeSlash,
-  faTrash,
-} from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import styles from "./ShareList.module.css";
 
@@ -55,24 +48,23 @@ export default function ShareList({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  async function fetchShares() {
+  const fetchShares = useCallback(async () => {
     try {
       setLoading(true);
       const all = await ShareAdapter.getAll();
       const filtered = all.filter((s) => s.paintingId === paintingId);
       setShares(filtered);
       setError(null);
-    } catch (err) {
-      console.error("Failed to fetch shares:", err);
+    } catch {
       setError("Failed to load shares");
     } finally {
       setLoading(false);
     }
-  }
+  }, [paintingId]);
 
   useEffect(() => {
-    fetchShares();
-  }, [paintingId, refreshKey]);
+    void fetchShares();
+  }, [refreshKey, fetchShares]);
 
   useEffect(() => {
     const newElements = document.querySelectorAll(`.${styles.shareItem}`);
@@ -82,41 +74,41 @@ export default function ShareList({
     });
   }, [shares]);
 
-  async function handlePublish(shareId: string) {
-    try {
-      const updated = await ShareAdapter.publish(shareId);
-      if (updated) {
-        setShares((prev) => prev.map((s) => (s.id === shareId ? updated : s)));
-      }
-    } catch (err) {
-      console.error("Error publishing share:", err);
-      alert("Failed to publish share");
-    }
-  }
+  // async function handlePublish(shareId: string) {
+  //   try {
+  //     const updated = await ShareAdapter.publish(shareId);
+  //     if (updated) {
+  //       setShares((prev) => prev.map((s) => (s.id === shareId ? updated : s)));
+  //     }
+  //   } catch (err) {
+  //     console.error("Error publishing share:", err);
+  //     alert("Failed to publish share");
+  //   }
+  // }
 
-  async function handleUnpublish(shareId: string) {
-    try {
-      const updated = await ShareAdapter.unpublish(shareId);
-      if (updated) {
-        setShares((prev) => prev.map((s) => (s.id === shareId ? updated : s)));
-      }
-    } catch (err) {
-      console.error("Error unpublishing share:", err);
-      alert("Failed to unpublish share");
-    }
-  }
+  // async function handleUnpublish(shareId: string) {
+  //   try {
+  //     const updated = await ShareAdapter.unpublish(shareId);
+  //     if (updated) {
+  //       setShares((prev) => prev.map((s) => (s.id === shareId ? updated : s)));
+  //     }
+  //   } catch (err) {
+  //     console.error("Error unpublishing share:", err);
+  //     alert("Failed to unpublish share");
+  //   }
+  // }
 
-  async function handleDelete(shareId: string) {
-    if (!confirm("Are you sure you want to delete this share?")) return;
-    try {
-      const success = await ShareAdapter.delete(shareId);
-      if (success) {
-        setShares((prev) => prev.filter((s) => s.id !== shareId));
-      }
-    } catch (err) {
-      console.error("Error deleting share:", err);
-    }
-  }
+  // async function handleDelete(shareId: string) {
+  //   if (!confirm("Are you sure you want to delete this share?")) return;
+  //   try {
+  //     const success = await ShareAdapter.delete(shareId);
+  //     if (success) {
+  //       setShares((prev) => prev.filter((s) => s.id !== shareId));
+  //     }
+  //   } catch (err) {
+  //     console.error("Error deleting share:", err);
+  //   }
+  // }
 
   if (loading) return <div className={styles.status}>Loading shares...</div>;
   if (error) return <div className={styles.error}>{error}</div>;

@@ -1,5 +1,5 @@
-import { NextFunction, Request, Response } from 'express';
-import jwt from 'jsonwebtoken';
+import { NextFunction, Request, Response } from "express";
+import jwt from "jsonwebtoken";
 
 import type { JwtPayload as BaseJwtPayload } from "jsonwebtoken";
 

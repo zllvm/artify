@@ -78,7 +78,7 @@ export default function Sidebar() {
                   className={styles.contextMenuItem}
                   onClick={() => {
                     setShowContextMenu(false);
-                    logout();
+                    void logout();
                   }}
                 >
                   Logout

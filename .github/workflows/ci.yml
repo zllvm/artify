@@ -11,15 +11,20 @@ permissions:
   contents: read
 
 jobs:
-  build-backend:
-    uses: ./.github/workflows/build-backend.yml
+  build-frontend:
+    uses: ./.github/workflows/build-frontend.yml
     secrets: inherit
     with:
       environment: prod
-  deploy-backend:
-    needs: build-backend
-    uses: ./.github/workflows/deploy-backend.yml
-    secrets: inherit
-    with:
-      environment: prod
-      container_image: ${{ needs.build-backend.outputs.container_image }}
+  # build-backend:
+  #   uses: ./.github/workflows/build-backend.yml
+  #   secrets: inherit
+  #   with:
+  #     environment: prod
+  # deploy-backend:
+  #   needs: build-backend
+  #   uses: ./.github/workflows/deploy-backend.yml
+  #   secrets: inherit
+  #   with:
+  #     environment: prod
+  #     container_image: ${{ needs.build-backend.outputs.container_image }}

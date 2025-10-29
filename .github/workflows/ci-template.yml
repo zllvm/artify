@@ -1,0 +1,41 @@
+name: Reusable CI Template
+
+on:
+  workflow_call:
+    inputs:
+      app:
+        description: "App to build (backend or frontend)"
+        required: true
+        type: string
+
+jobs:
+  ci:
+    name: Lint & Test ${{ inputs.app }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install pnpm
+        run: corepack enable && corepack prepare pnpm@latest --activate
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build shared workspace
+        run: pnpm --filter @artify/shared build
+
+      - name: Lint
+        run: pnpm --filter ${{ inputs.app }} lint
+
+      - name: Type Check
+        run: pnpm --filter ${{ inputs.app }} type-check
+
+      - name: Run Tests
+        run: pnpm --filter ${{ inputs.app }} test

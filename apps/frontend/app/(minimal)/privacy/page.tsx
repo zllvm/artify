@@ -1,4 +1,3 @@
-// File: app/privacy/page.tsx (Next.js App Router)
 import React from "react";
 
 import styles from "./page.module.css";
@@ -31,12 +30,12 @@ export default function PrivacyPage() {
 
       <section className={styles.section}>
         <p>
-          This Privacy Policy explains how {policy.company} ("we", "us", or
-          "our") handles your information when you use{" "}
-          <strong>{policy.name}</strong> (the "Service"). While {policy.name} is
-          currently in active development, we aim to follow privacy-by-design
-          principles and collect only the minimum data necessary to deliver the
-          Service.
+          This Privacy Policy explains how {policy.company} (&quot;we&quot;,
+          &quot;us&quot;, or &quot;our&quot;) handles your information when you
+          use <strong>{policy.name}</strong> (the &quot;Service&quot;). While{" "}
+          {policy.name} is currently in active development, we aim to follow
+          privacy-by-design principles and collect only the minimum data
+          necessary to deliver the Service.
         </p>
       </section>
 
@@ -128,8 +127,8 @@ export default function PrivacyPage() {
         <h2>Changes to this policy</h2>
         <p>
           We may update this Privacy Policy from time to time. We will post the
-          new version on this page and update the "Last updated" date above. If
-          changes are material, we will provide additional notice.
+          new version on this page and update the &quot;Last updated&quot; date
+          above. If changes are material, we will provide additional notice.
         </p>
       </section>
 

@@ -11,7 +11,7 @@ COPY packages ./packages
 COPY apps/frontend ./apps/frontend
 
 RUN pnpm install --frozen-lockfile
-RUN pnpm --filter frontend build
+RUN pnpm turbo run build --filter=frontend
 
 RUN pnpm deploy --filter frontend --prod /app/deploy
 

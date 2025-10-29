@@ -33,6 +33,7 @@ apps/frontend-old/
 apps/**/.next/
 apps/**/out/
 apps/**/public/
+!apps/frontend/public/**
 apps/**/uploads/
 
 # === System / Editor ===
@@ -44,5 +45,3 @@ apps/**/uploads/
 # === Docker ===
 Dockerfile*
 .dockerignore
-
-

@@ -54,6 +54,7 @@ coverage/
 *.tfstate
 *.tfstate.backup
 tfplan_aws
+tf.tfvars
 .terraform/
 crash.log
 override.tf

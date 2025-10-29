@@ -1,14 +1,14 @@
 data "aws_region" "current" {}
 
 resource "aws_cloudwatch_log_group" "main" {
-  name              = var.domain_name
+  name              = var.service_name
   retention_in_days = 30
 
   tags = local.tags
 }
 
 resource "aws_iam_role" "ecs_task_role" {
-  name = "${local.service_name}-ecs-task-role"
+  name = "${local.env_service_name}-ecs-task-role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -28,7 +28,7 @@ resource "aws_iam_role" "ecs_task_role" {
 }
 
 resource "aws_iam_policy" "metrics_policy" {
-  name        = "${local.service_name}-metrics-policy"
+  name        = "${local.env_service_name}-metrics-policy"
   description = "Policy for CloudWatch metrics"
   policy = jsonencode({
     Version = "2012-10-17"
@@ -45,7 +45,7 @@ resource "aws_iam_policy" "metrics_policy" {
 }
 
 resource "aws_iam_role" "ecs_task_execution_role" {
-  name = "${local.service_name}-ecs-execution-role"
+  name = "${local.env_service_name}-ecs-execution-role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -80,7 +80,7 @@ resource "aws_iam_role_policy_attachment" "ecs_execution_secret_access" {
 }
 
 resource "aws_ecs_task_definition" "main" {
-  family                   = "${local.service_name}"
+  family                   = "${local.env_service_name}"
   network_mode              = "awsvpc"
   requires_compatibilities  = ["FARGATE"]
   cpu                       = var.cpu
@@ -90,7 +90,7 @@ resource "aws_ecs_task_definition" "main" {
 
   container_definitions = jsonencode([
     {
-      name      = var.service_name
+      name      = local.service_name
       image     = var.container_image
       essential = true
       portMappings = [{

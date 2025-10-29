@@ -1,5 +1,5 @@
 resource "aws_ecr_repository" "ecr" {
-  name                 = local.service_name
+  name                 = local.env_service_name
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {

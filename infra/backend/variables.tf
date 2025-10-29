@@ -3,6 +3,11 @@ variable "service_name" {
   type        = string
 }
 
+variable "app_name" {
+  description = "Application name"
+  type        = string
+}
+
 variable "env" {
   description = "Application env"
   type        = string
@@ -49,7 +54,7 @@ variable "desired_count" {
 }
 
 variable "domain_name" {
-  description = "Api domain name"
+  description = "Domain name"
   type        = string
 }
 

@@ -23,7 +23,7 @@ data "aws_cloudformation_export" "elb_listener" {
 }
 
 resource "aws_security_group" "ecs_tasks" {
-  name        = "${local.service_name}-ecs-tasks-sg"
+  name        = "${local.env_service_name}-ecs-tasks-sg"
   description = "Allow inbound traffic to ECS tasks"
   vpc_id      = data.aws_cloudformation_export.vpc.value
 
@@ -48,7 +48,7 @@ resource "aws_security_group" "ecs_tasks" {
 }
 
 resource "aws_lb_target_group" "app" {
-  name        = "${var.service_name}-tg" # max 32 chars
+  name        = "${local.service_name}-tg" # max 32 chars
   port        = var.container_port
   protocol    = "HTTP"
   target_type = "ip"
@@ -66,13 +66,13 @@ resource "aws_lb_listener_rule" "app" {
 
   condition {
     host_header {
-      values = [var.domain_name]
+      values = [local.backend_domain]
     }
   }
 
   condition {
     path_pattern {
-      values = ["/api/*"]
+      values = ["/api/*", "/uploads/*"]
     }
   }
 
@@ -85,7 +85,7 @@ resource "aws_lb_listener_rule" "app" {
 }
 
 resource "aws_ecs_service" "main" {
-  name            = local.service_name
+  name            = local.env_service_name
   cluster         = data.aws_cloudformation_export.ecs_cluster.value
   task_definition = aws_ecs_task_definition.main.arn
   desired_count   = var.desired_count
@@ -99,7 +99,7 @@ resource "aws_ecs_service" "main" {
 
   load_balancer {
     target_group_arn = aws_lb_target_group.app.arn
-    container_name   = var.service_name
+    container_name   = local.service_name
     container_port   = var.container_port
   }
 

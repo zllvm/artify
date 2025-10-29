@@ -6,9 +6,9 @@ on:
       environment:
         type: string
         required: true
-      container_image:
-        type: string
-        required: true
+      # container_image:
+      #   type: string
+      #   required: true
 
 env:
   TF_WORKING_DIR: ./infra/frontend

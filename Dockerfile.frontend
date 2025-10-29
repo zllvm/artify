@@ -5,25 +5,24 @@ WORKDIR /app
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-COPY apps/backend/package.json apps/backend/
+COPY apps/frontend/package.json apps/frontend/
 COPY packages/shared/package.json packages/shared/
 COPY tsconfig*.json ./
+COPY turbo.json ./
 
 RUN pnpm install --frozen-lockfile
 
-COPY apps/backend ./apps/backend
+COPY apps/frontend ./apps/frontend
 COPY packages/shared ./packages/shared
 
-RUN pnpm --filter backend build
-RUN mkdir -p /app/uploads && chown -R 65532:65532 /app/uploads
+RUN pnpm --filter frontend build
 
-RUN pnpm deploy --filter backend --prod /app/deploy
+RUN pnpm deploy --filter frontend --prod /app/deploy
 
 FROM gcr.io/distroless/nodejs22-debian12
 WORKDIR /app
 
 COPY --from=builder /app/deploy ./
-COPY --from=builder /app/uploads ./uploads
 
 USER nonroot
-CMD ["dist/server.js"]
+CMD ["server.js"]

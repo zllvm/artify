@@ -11,10 +11,19 @@ permissions:
   contents: read
 
 jobs:
-  build-frontend:
-    uses: ./.github/workflows/build-frontend.yml
+  # build-frontend:
+  #   uses: ./.github/workflows/templates/build.yml
+  #   secrets: inherit
+  #   with:
+  #     app: frontend
+  push-frontend:
+    # needs: build-frontend
+    uses: ./.github/workflows/templates/push.yml
     secrets: inherit
     with:
+      service_name: ${{ vars.SERVICE_NAME }}
+      app: frontend
+      dockerfile: Dockerfile.frontend
       environment: prod
   # build-backend:
   #   uses: ./.github/workflows/build-backend.yml

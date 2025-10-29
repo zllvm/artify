@@ -29,7 +29,6 @@ __pycache__/
 
 # === Apps & packages ===
 # Ignore built or local assets that don’t need to go to Docker
-apps/frontend/
 apps/frontend-old/
 apps/**/.next/
 apps/**/out/
@@ -45,3 +44,5 @@ apps/**/uploads/
 # === Docker ===
 Dockerfile*
 .dockerignore
+
+

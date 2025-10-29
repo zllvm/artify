@@ -49,6 +49,8 @@ jobs:
             -var="service_name=${{ vars.SERVICE_NAME }}" \
             -var="app_name=${{ env.APP_NAME }}" \
             -var="env=${{ inputs.environment }}" \
+            -var="backend_url=${{ vars.BACKEND_URL }}" \
+            -var="container_image=${{ inputs.container_image }}" \
             -out=tfplan_aws
         working-directory: ${{ env.TF_WORKING_DIR }}
 

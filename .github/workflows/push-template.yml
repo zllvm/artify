@@ -75,4 +75,4 @@ jobs:
           docker tag ${{ env.APP_NAME }} ${{ env.AWS_IMAGE_NAME }}:${{ env.VERSION }}
           docker push ${{ env.AWS_IMAGE_NAME }}:latest
           docker push ${{ env.AWS_IMAGE_NAME }}:${{ env.VERSION }}
-          echo "container_image=${{ inputs.image_name }}:${{ env.VERSION }}" >> $GITHUB_OUTPUT
+          echo "container_image=${{ env.AWS_IMAGE_NAME }}:${{ env.VERSION }}" >> $GITHUB_OUTPUT

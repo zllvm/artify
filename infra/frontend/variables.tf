@@ -13,3 +13,31 @@ variable "env" {
   type        = string
   default     = "dev"
 }
+
+variable "container_image" {
+  type        = string
+  description = "The Docker image URI for the backend"
+}
+
+variable "cpu" {
+  description = "CPU units"
+  type        = number
+  default     = 256
+}
+
+variable "memory" {
+  description = "Memory units"
+  type        = number
+  default     = 512
+}
+
+variable "container_port" {
+  description = "Container port"
+  type        = number
+  default     = 3001
+}
+
+variable "backend_url" {
+  description = "Backend URL for the application"
+  type        = string
+}

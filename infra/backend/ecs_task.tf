@@ -103,7 +103,7 @@ resource "aws_ecs_task_definition" "main" {
         },
         {
           name  = "PORT"
-          value = tostring(var.app_port)
+          value = tostring(var.container_port)
         },
         {
           name  = "BASE_URL"

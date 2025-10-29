@@ -29,12 +29,6 @@ variable "memory" {
 variable "container_port" {
   description = "Container port"
   type        = number
-  default     = 80
-}
-
-variable "app_port" {
-  description = "Container port"
-  type        = number
   default     = 3001
 }
 

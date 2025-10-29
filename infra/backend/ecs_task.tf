@@ -94,7 +94,7 @@ resource "aws_ecs_task_definition" "main" {
       image     = var.container_image
       essential = true
       portMappings = [{
-        containerPort = var.container_port
+        containerPort = var.container_port,
       }]
       environment = [
         {
@@ -103,7 +103,7 @@ resource "aws_ecs_task_definition" "main" {
         },
         {
           name  = "PORT"
-          value = tostring(var.container_port)
+          value = tostring(var.app_port)
         },
         {
           name  = "BASE_URL"

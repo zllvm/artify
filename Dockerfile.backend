@@ -35,5 +35,10 @@ WORKDIR /app
 COPY --from=builder /app/deploy ./
 COPY --from=builder /app/uploads ./uploads
 
+ARG PORT=3001
+ARG EXPOSE_PORT=80
+ENV PORT=${PORT}
+EXPOSE ${EXPOSE_PORT}
+
 USER nonroot
 CMD ["dist/server.js"]

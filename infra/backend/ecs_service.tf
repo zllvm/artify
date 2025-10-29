@@ -47,42 +47,42 @@ resource "aws_security_group" "ecs_tasks" {
   tags = local.tags
 }
 
-resource "aws_lb_target_group" "app" {
-  name        = "${var.service_name}-tg" # max 32 chars
-  port        = var.container_port
-  protocol    = "HTTP"
-  target_type = "ip"
-  vpc_id      = data.aws_cloudformation_export.vpc.value
+# resource "aws_lb_target_group" "app" {
+#   name        = "${var.service_name}-tg" # max 32 chars
+#   port        = var.container_port
+#   protocol    = "HTTP"
+#   target_type = "ip"
+#   vpc_id      = data.aws_cloudformation_export.vpc.value
 
-  health_check {
-    path = var.health_endpoint
-    port = var.container_port
-  }
-}
+#   health_check {
+#     path = var.health_endpoint
+#     port = var.container_port
+#   }
+# }
 
-resource "aws_lb_listener_rule" "app" {
-  listener_arn = data.aws_cloudformation_export.elb_listener.value
-  priority     = 4
+# resource "aws_lb_listener_rule" "app" {
+#   listener_arn = data.aws_cloudformation_export.elb_listener.value
+#   priority     = 4
 
-  condition {
-    host_header {
-      values = [var.api_domain_name]
-    }
-  }
+#   condition {
+#     host_header {
+#       values = [var.api_domain_name]
+#     }
+#   }
 
-  condition {
-    path_pattern {
-      values = ["/api/*"]
-    }
-  }
+#   condition {
+#     path_pattern {
+#       values = ["/api/*"]
+#     }
+#   }
 
-  action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.app.arn
-  }
+#   action {
+#     type             = "forward"
+#     target_group_arn = aws_lb_target_group.app.arn
+#   }
 
-  depends_on = [aws_lb_target_group.app]
-}
+#   depends_on = [aws_lb_target_group.app]
+# }
 
 # resource "aws_ecs_service" "main" {
 #   name            = local.service_name
@@ -109,6 +109,6 @@ resource "aws_lb_listener_rule" "app" {
 # }
 
 
-output "ecs_service_name" {
-  value = aws_ecs_service.main.name
-}
+# output "ecs_service_name" {
+#   value = aws_ecs_service.main.name
+# }

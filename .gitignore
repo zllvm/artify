@@ -53,6 +53,7 @@ coverage/
 # === Terraform ===
 *.tfstate
 *.tfstate.backup
+tfplan_aws
 .terraform/
 crash.log
 override.tf
@@ -71,6 +72,7 @@ override.tf.json
 /apps/backend/dist/
 /apps/backend/node_modules/
 /apps/backend/*.log
+
 
 # === Temporary ===
 tmp/

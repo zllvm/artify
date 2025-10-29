@@ -1,7 +1,7 @@
 data "aws_region" "current" {}
 
 resource "aws_cloudwatch_log_group" "main" {
-  name              = var.service_name
+  name              = var.domain_name
   retention_in_days = 30
 
   tags = local.tags
@@ -125,7 +125,7 @@ resource "aws_ecs_task_definition" "main" {
         options = {
           awslogs-group         = aws_cloudwatch_log_group.main.name
           awslogs-region        = data.aws_region.current.region
-          awslogs-stream-prefix = local.service_name
+          awslogs-stream-prefix = var.env
         }
       }
     }

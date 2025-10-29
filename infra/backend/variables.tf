@@ -48,13 +48,13 @@ variable "desired_count" {
   default     = 1
 }
 
-variable "api_domain_name" {
+variable "domain_name" {
   description = "Api domain name"
   type        = string
 }
 
 variable "health_endpoint" {
-  description = "Api domain name"
+  description = "Health check endpoint"
   type        = string
   default     = "/api/health"
 }

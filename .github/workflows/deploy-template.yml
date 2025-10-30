@@ -1,4 +1,4 @@
-name: Deploy Frontend
+name: Deploy Backend
 
 on:
   workflow_call:
@@ -6,13 +6,16 @@ on:
       environment:
         type: string
         required: true
+      app:
+        description: "App to build (backend or frontend)"
+        required: true
+        type: string
       container_image:
         type: string
         required: true
 
 env:
-  TF_WORKING_DIR: ./infra/frontend
-  APP_NAME: frontend
+  TF_WORKING_DIR: ./infra/${{ inputs.app }}
 
 jobs:
   deploy-aws:
@@ -40,10 +43,11 @@ jobs:
         run: |
           terraform init -input=false \
             -backend-config="bucket=${{ vars.TF_S3 }}" \
-            -backend-config="key=${{ vars.SERVICE_NAME }}/${{ inputs.environment }}/${{ env.APP_NAME }}-tfstate"
+            -backend-config="key=${{ vars.SERVICE_NAME }}/${{ inputs.environment }}/backend-tfstate"
         working-directory: ${{ env.TF_WORKING_DIR }}
 
-      - name: "Terraform Plan"
+      - name: "Terraform Plan (frontend)"
+        if: inputs.app == 'frontend'
         run: |
           terraform plan -input=false \
             -var="service_name=${{ vars.SERVICE_NAME }}" \
@@ -52,6 +56,20 @@ jobs:
             -var="backend_url=${{ vars.BACKEND_URL }}" \
             -var="container_image=${{ inputs.container_image }}" \
             -var="jwt_public_key=${{ vars.JWT_PUBLIC_KEY }}" \
+            -var="domain_name=${{ vars.DOMAIN_NAME }}" \
+            -out=tfplan_aws
+        working-directory: ${{ env.TF_WORKING_DIR }}
+
+      - name: "Terraform Plan (backend)"
+        if: inputs.app == 'backend'
+        run: |
+          terraform plan -input=false \
+            -var="service_name=${{ vars.SERVICE_NAME }}" \
+            -var="app_name=backend" \
+            -var="env=${{ inputs.environment }}" \
+            -var="base_url=${{ vars.BASE_URL }}" \
+            -var="frontend_url=${{ vars.FRONTEND_URL }}" \
+            -var="container_image=${{ inputs.container_image }}" \
             -var="domain_name=${{ vars.DOMAIN_NAME }}" \
             -out=tfplan_aws
         working-directory: ${{ env.TF_WORKING_DIR }}

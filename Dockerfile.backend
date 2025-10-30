@@ -23,7 +23,8 @@ FROM gcr.io/distroless/nodejs22-debian12
 WORKDIR /app
 
 COPY --from=builder /app/deploy ./
-COPY --from=builder /app/uploads ./uploads
+COPY --from=builder --chown=nonroot:nonroot /app/uploads ./uploads
 
 USER nonroot
+
 CMD ["dist/server.js"]

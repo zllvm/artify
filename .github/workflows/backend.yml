@@ -1,0 +1,53 @@
+name: Backend CI/CD
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "apps/backend/**"
+      - "packages/shared/**"
+      - Dockerfile.backend
+      - "infra/backend/**"
+      - ".github/workflows/**"
+      - "!.github/workflows/frontend.yml"
+      - "!.github/workflows/deploy-frontend.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "apps/backend/**"
+      - "packages/shared/**"
+      - Dockerfile.backend
+      - "infra/backend/**"
+      - ".github/workflows/**"
+      - "!.github/workflows/frontend.yml"
+      - "!.github/workflows/deploy-frontend.yml"
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  build:
+    uses: ./.github/workflows/build-template.yml
+    secrets: inherit
+    with:
+      app: backend
+
+  push:
+    needs: build
+    uses: ./.github/workflows/push-template.yml
+    secrets: inherit
+    with:
+      service_name: ${{ vars.SERVICE_NAME }}
+      app: backend
+      dockerfile: Dockerfile.backend
+      environment: prod
+
+  deploy:
+    needs: push
+    uses: ./.github/workflows/deploy-template.yml
+    secrets: inherit
+    with:
+      environment: prod
+      app: backend
+      container_image: ${{ needs.push.outputs.container_image }}

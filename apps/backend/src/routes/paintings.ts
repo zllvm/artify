@@ -1,18 +1,21 @@
-import { randomUUID } from 'crypto';
-import { Request, Response, Router } from 'express';
-import fs from 'fs';
-import path from 'path';
-import sharp from 'sharp';
-import { z } from 'zod';
+import { randomUUID } from "crypto";
+import { Request, Response, Router } from "express";
+import fs from "fs";
+import path from "path";
+import sharp from "sharp";
+import { z } from "zod";
 
-import { formatFileSize } from '@artify/shared/utils/common';
-import { detectImageFormat, getFilenameFromUrl } from '@artify/shared/utils/imageUtils';
+import { formatFileSize } from "@artify/shared/utils/common";
+import {
+  detectImageFormat,
+  getFilenameFromUrl,
+} from "@artify/shared/utils/imageUtils";
 
-import { ManifestModel } from '../models/manifest.js';
-import { PaintingModel } from '../models/painting.js';
-import { ChatGptService } from '../services/chatGptService.js';
-import { logger } from '../utils/logger.js';
-import { upload, UPLOADS_DIR } from '../utils/multer.js';
+import { ManifestModel } from "../models/manifest.js";
+import { PaintingModel } from "../models/painting.js";
+import { ChatGptService } from "../services/chatGptService.js";
+import { logger } from "../utils/logger.js";
+import { upload, UPLOADS_DIR } from "../utils/multer.js";
 
 import type { ApiResponse, Painting } from "@artify/shared";
 
@@ -219,18 +222,13 @@ export const createPaintingRouter = (chatGptService: ChatGptService) => {
 
       const queryResult = DescribeQuerySchema.safeParse(req.query);
       if (!queryResult.success) {
-        return res.status(400).json({
-          success: false,
-          error: "Invalid query parameters: " + queryResult.error.message,
-        });
-      }
-
-      const bodyResult = DescribeBodySchema.safeParse(req.body);
-      if (!bodyResult.success) {
-        return res.status(400).json({
-          success: false,
-          error: "Invalid request body: " + bodyResult.error.message,
-        });
+        const bodyResult = DescribeBodySchema.safeParse(req.body);
+        if (!bodyResult.success) {
+          return res.status(400).json({
+            success: false,
+            error: "Invalid parameters",
+          });
+        }
       }
 
       // 1. Find painting
@@ -270,12 +268,12 @@ export const createPaintingRouter = (chatGptService: ChatGptService) => {
       const imageBase64 = fs.readFileSync(filePath).toString("base64");
 
       // 5. Parse query params
-      const wantTitle = query.title === "true" || body.title === true;
+      const wantTitle = query?.title === "true" || body?.title === true;
       const wantDescription =
-        query.description === "true" ||
-        body.description === true ||
-        (!wantTitle && query.tags !== "true" && body.tags !== true);
-      const wantTags = query.tags === "true" || body.tags === true;
+        query?.description === "true" ||
+        body?.description === true ||
+        (!wantTitle && query?.tags !== "true" && body?.tags !== true);
+      const wantTags = query?.tags === "true" || body?.tags === true;
 
       // 6. Build response data
       const result: ApiResponse<Painting>["data"] = {

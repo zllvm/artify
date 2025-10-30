@@ -105,6 +105,10 @@ resource "aws_ecs_task_definition" "main" {
           name  = "HOSTNAME"
           value = "0.0.0.0"
         },
+        {
+          name  = "NEXT_TELEMETRY_DISABLED"
+          value = "1"
+        },
       ]
       logConfiguration = {
         logDriver = "awslogs"

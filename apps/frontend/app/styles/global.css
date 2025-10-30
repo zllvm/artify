@@ -97,8 +97,15 @@ html {
 }
 
 body {
-  font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont,
-    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-family:
+    var(--font-geist-sans),
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    "Helvetica Neue",
+    Arial,
+    sans-serif;
   background-color: var(--black);
 
   color: var(--text-color);
@@ -265,7 +272,10 @@ textarea.input {
   cursor: pointer;
   outline: none;
   background-color: var(--bg-subtle-color);
-  transition: background-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease,
+  transition:
+    background-color 0.2s ease,
+    box-shadow 0.2s ease,
+    color 0.2s ease,
     transform 0.1s ease;
 
   -webkit-touch-callout: none; /* iOS Safari */
@@ -273,8 +283,7 @@ textarea.input {
   -khtml-user-select: none; /* Konqueror HTML */
   -moz-user-select: none; /* Old versions of Firefox */
   -ms-user-select: none; /* Internet Explorer/Edge */
-  user-select: none; /* Non-prefixed version, currently
-   
+  user-select: none; /* Non-prefixed version, currently*/
 }
 
 .btn:active:not(:disabled) {

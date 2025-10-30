@@ -3,7 +3,7 @@ locals {
 
   service_name = "${var.service_name}-${var.app_name}"
   env_service_name = "${var.env}-${local.service_name}"
-  backend_domain = "${var.service_name}.${var.domain_name}"
+  domain = "${var.service_name}.${var.domain_name}"
 
   secret_keys = [
     "OPENAI_API_KEY", "GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_SECRET", 

@@ -31,6 +31,12 @@ variable "memory" {
   default     = 512
 }
 
+variable "desired_count" {
+  description = "Desired count of tasks"
+  type        = number
+  default     = 1
+}
+
 variable "container_port" {
   description = "Container port"
   type        = number
@@ -45,4 +51,15 @@ variable "backend_url" {
 variable "jwt_public_key" {
   description = "ARN of the JWT public key secret"
   type        = string
+}
+
+variable "domain_name" {
+  description = "Domain name"
+  type        = string
+}
+
+variable "health_endpoint" {
+  description = "Health check endpoint"
+  type        = string
+  default     = "/health"
 }

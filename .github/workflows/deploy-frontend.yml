@@ -52,6 +52,7 @@ jobs:
             -var="backend_url=${{ vars.BACKEND_URL }}" \
             -var="container_image=${{ inputs.container_image }}" \
             -var="jwt_public_key=${{ vars.JWT_PUBLIC_KEY }}" \
+            -var="domain_name=${{ vars.DOMAIN_NAME }}" \
             -out=tfplan_aws
         working-directory: ${{ env.TF_WORKING_DIR }}
 

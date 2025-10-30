@@ -7,7 +7,7 @@ on:
       - "apps/frontend/**"
       - "packages/shared/**"
       - Dockerfile.frontend
-      - "infra/backend/**"
+      - "infra/frontend/**"
       - ".github/workflows/**"
       - "!.github/workflows/backend.yml"
       - "!.github/workflows/deploy-backend.yml"
@@ -17,7 +17,7 @@ on:
       - "apps/frontend/**"
       - "packages/shared/**"
       - Dockerfile.frontend
-      - "infra/backend/**"
+      - "infra/frontend/**"
       - ".github/workflows/**"
       - "!.github/workflows/backend.yml"
       - "!.github/workflows/deploy-backend.yml"

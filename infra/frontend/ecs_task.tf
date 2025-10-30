@@ -100,7 +100,11 @@ resource "aws_ecs_task_definition" "main" {
         {
           name  = "JWT_PUBLIC_KEY"
           value = var.jwt_public_key
-        }
+        },
+        {
+          name  = "HOSTNAME"
+          value = "0.0.0.0"
+        },
       ]
       logConfiguration = {
         logDriver = "awslogs"

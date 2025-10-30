@@ -14,11 +14,12 @@ RUN pnpm install --frozen-lockfile
 COPY apps/backend ./apps/backend
 COPY packages/shared ./packages/shared
 
-RUN pnpm --filter backend build
-RUN mkdir -p /app/uploads && chown -R 65532:65532 /app/uploads
-
+RUN pnpm turbo run build --filter backend
 RUN pnpm deploy --filter backend --prod /app/deploy
 
+RUN mkdir -p /app/uploads && chown -R 65532:65532 /app/uploads
+
+# --- Run stage ---
 FROM gcr.io/distroless/nodejs22-debian12
 WORKDIR /app
 

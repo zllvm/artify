@@ -62,17 +62,11 @@ resource "aws_lb_target_group" "app" {
 
 resource "aws_lb_listener_rule" "app" {
   listener_arn = data.aws_cloudformation_export.elb_listener.value
-  priority     = 4
+  priority     = 5
 
   condition {
     host_header {
       values = [local.domain]
-    }
-  }
-
-  condition {
-    path_pattern {
-      values = ["/api/*", "/uploads/*"]
     }
   }
 

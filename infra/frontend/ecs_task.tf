@@ -74,11 +74,6 @@ resource "aws_iam_role_policy_attachment" "ecs_execution_role_policy" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
-resource "aws_iam_role_policy_attachment" "ecs_execution_secret_access" {
-  role       = aws_iam_role.ecs_task_execution_role.name
-  policy_arn = module.json_secret.read_policy_arn
-}
-
 resource "aws_ecs_task_definition" "main" {
   family                   = "${local.env_service_name}"
   network_mode              = "awsvpc"
@@ -104,12 +99,10 @@ resource "aws_ecs_task_definition" "main" {
         {
           name  = "NEXT_PUBLIC_API_URL"
           value = var.backend_url
-        }
-      ]
-      secrets = [
-        for key in local.secret_keys : {
-          name      = key
-          valueFrom = "${module.json_secret.secret_arn}:${key}::"
+        },
+        {
+          name  = "JWT_PUBLIC_KEY"
+          value = var.jwt_public_key
         }
       ]
       logConfiguration = {

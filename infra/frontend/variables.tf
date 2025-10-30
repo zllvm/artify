@@ -41,3 +41,8 @@ variable "backend_url" {
   description = "Backend URL for the application"
   type        = string
 }
+
+variable "jwt_public_key" {
+  description = "ARN of the JWT public key secret"
+  type        = string
+}

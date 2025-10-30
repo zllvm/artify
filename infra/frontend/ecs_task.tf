@@ -90,6 +90,10 @@ resource "aws_ecs_task_definition" "main" {
           value = var.env == "prod" ? "production" : var.env
         },
         {
+          name  = "PORT"
+          value = tostring(var.container_port)
+        },
+        {
           name  = "API_URL"
           value = var.backend_url
         },

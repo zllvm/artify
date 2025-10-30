@@ -50,7 +50,7 @@ jobs:
         run: |
           terraform plan -input=false \
             -var="service_name=${{ vars.SERVICE_NAME }}" \
-            -var="app_name=${{ env.APP_NAME }}" \
+            -var="app_name=${{ inputs.app }}" \
             -var="env=${{ inputs.environment }}" \
             -var="backend_url=${{ vars.BACKEND_URL }}" \
             -var="container_image=${{ inputs.container_image }}" \
@@ -64,7 +64,7 @@ jobs:
         run: |
           terraform plan -input=false \
             -var="service_name=${{ vars.SERVICE_NAME }}" \
-            -var="app_name=backend" \
+            -var="app_name=${{ inputs.app }}" \
             -var="env=${{ inputs.environment }}" \
             -var="base_url=${{ vars.BASE_URL }}" \
             -var="frontend_url=${{ vars.FRONTEND_URL }}" \

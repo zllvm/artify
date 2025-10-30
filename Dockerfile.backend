@@ -5,14 +5,12 @@ WORKDIR /app
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-COPY apps/backend/package.json apps/backend/
-COPY packages/shared/package.json packages/shared/
 COPY tsconfig*.json ./
+COPY turbo.json ./
+COPY apps/backend ./apps/backend
+COPY packages ./packages
 
 RUN pnpm install --frozen-lockfile
-
-COPY apps/backend ./apps/backend
-COPY packages/shared ./packages/shared
 
 RUN pnpm turbo run build --filter backend
 RUN pnpm deploy --filter backend --prod /app/deploy

@@ -1,5 +1,4 @@
-name: Deploy Backend
-
+name: Deploy Backend/Frontend
 on:
   workflow_call:
     inputs:
@@ -43,7 +42,7 @@ jobs:
         run: |
           terraform init -input=false \
             -backend-config="bucket=${{ vars.TF_S3 }}" \
-            -backend-config="key=${{ vars.SERVICE_NAME }}/${{ inputs.environment }}/backend-tfstate"
+            -backend-config="key=${{ vars.SERVICE_NAME }}/${{ inputs.environment }}/${{ inputs.app }}-tfstate"
         working-directory: ${{ env.TF_WORKING_DIR }}
 
       - name: "Terraform Plan (frontend)"

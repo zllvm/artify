@@ -1,12 +1,5 @@
 data "aws_region" "current" {}
 
-resource "aws_cloudwatch_log_group" "main" {
-  name              = var.service_name
-  retention_in_days = 30
-
-  tags = local.tags
-}
-
 resource "aws_iam_role" "ecs_task_role" {
   name = "${local.env_service_name}-ecs-task-role"
 
@@ -108,7 +101,7 @@ resource "aws_ecs_task_definition" "main" {
       logConfiguration = {
         logDriver = "awslogs"
         options = {
-          awslogs-group         = aws_cloudwatch_log_group.main.name
+          awslogs-group         = var.service_name
           awslogs-region        = data.aws_region.current.region
           awslogs-stream-prefix = var.env
         }

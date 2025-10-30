@@ -13,12 +13,15 @@ COPY apps/frontend ./apps/frontend
 RUN pnpm install --frozen-lockfile
 RUN pnpm turbo run build --filter=frontend
 
-RUN pnpm deploy --filter frontend --prod /app/deploy
+RUN mkdir -p /app/apps/frontend/.next/cache && chown -R 65532:65532 /app
 
+# --- Run stage ---
 FROM gcr.io/distroless/nodejs22-debian12
 WORKDIR /app
 
-COPY --from=builder /app/deploy ./
+COPY --from=builder /app/apps/frontend/.next/standalone ./
+COPY --from=builder /app/apps/frontend/.next/static ./apps/frontend/.next/static
+COPY --from=builder /app/apps/frontend/public ./apps/frontend/public
 
 USER nonroot
-CMD ["server.js"]
+CMD ["apps/frontend/server.js"]

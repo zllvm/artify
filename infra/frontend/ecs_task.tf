@@ -90,6 +90,10 @@ resource "aws_ecs_task_definition" "main" {
           value = var.env == "prod" ? "production" : var.env
         },
         {
+          name  = "API_URL"
+          value = var.backend_url
+        },
+        {
           name  = "JWT_PUBLIC_KEY"
           value = var.jwt_public_key
         }

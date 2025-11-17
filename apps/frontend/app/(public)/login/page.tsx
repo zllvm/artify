@@ -15,7 +15,7 @@ export default function LoginPage() {
           Your <span className={styles.art}>art</span>, too.
         </div>
         <Image
-          src="/images/heart.png"
+          src="/images/heart2.png"
           alt="sketchy heart"
           width={100}
           height={100}

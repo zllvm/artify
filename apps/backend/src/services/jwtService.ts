@@ -78,7 +78,10 @@ export default class JwtService {
 
   private resolveExpiresInSeconds(value: SignOptions["expiresIn"]): number {
     if (typeof value === "number") return value;
-    if (typeof value === "string") return ms(value) / 1000;
+    if (typeof value === "string") {
+      const milliseconds = ms(value);
+      return milliseconds / 1000;
+    }
     throw new Error("Invalid expiresIn value");
   }
 }

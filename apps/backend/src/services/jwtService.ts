@@ -80,7 +80,7 @@ export default class JwtService {
     if (typeof value === "number") return value;
     if (typeof value === "string") {
       // Type assertion needed for CI environment where ms() return type isn't properly inferred
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unnecessary-type-assertion
       const milliseconds = ms(value) as number;
       return milliseconds / 1000;
     }

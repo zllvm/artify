@@ -8,7 +8,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default [
   {
-    linterOptions: { reportUnusedDisableDirectives: true },
+    linterOptions: { reportUnusedDisableDirectives: "warn" },
   },
 
   ...ts.configs.recommendedTypeChecked.map((cfg) => ({

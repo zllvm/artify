@@ -1,12 +1,11 @@
 import { Router } from "express";
-import { RequestHandler } from "express-serve-static-core";
 
 import { safeConfig } from "../config/environment.js";
 import { logger } from "../utils/logger/logger.js";
 import RuntimeStats from "../utils/runtimeStats.js";
 
 import type { ApiResponse } from "@artify/shared";
-import type { Request, Response } from "express";
+import type { Request, Response, RequestHandler } from "express";
 export const createDiagRouter = (requireAuth: RequestHandler) => {
   const router = Router();
 

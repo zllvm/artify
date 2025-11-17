@@ -1,32 +1,43 @@
-import base from "../../eslint.config.js";
+import ts from "typescript-eslint";
+import prettier from "eslint-config-prettier";
 import globals from "globals";
-import parser from "@typescript-eslint/parser";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default [
-  ...base,
   {
+    linterOptions: { reportUnusedDisableDirectives: true },
+  },
+
+  ...ts.configs.recommendedTypeChecked.map((cfg) => ({
+    ...cfg,
     files: ["**/*.{ts,tsx}"],
     languageOptions: {
-      parser,
+      ...cfg.languageOptions,
       parserOptions: {
-        projectService: true,
+        ...cfg.languageOptions?.parserOptions,
+        project: "./tsconfig.json",
         tsconfigRootDir: __dirname,
-        project: [
-          path.resolve(__dirname, "tsconfig.json"),
-          path.resolve(__dirname, "../../packages/shared/tsconfig.json"),
-        ],
       },
       globals: {
         ...globals.node,
         ...globals.es2022,
       },
     },
+  })),
+
+  prettier,
+
+  {
+    files: ["**/*.{ts,tsx}"],
     rules: {
       "no-console": "off",
     },
+  },
+
+  {
+    ignores: ["dist/**", "node_modules/**"],
   },
 ];

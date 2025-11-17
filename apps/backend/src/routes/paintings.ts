@@ -1,5 +1,4 @@
-import { Request, Response, Router } from "express";
-import { RequestHandler } from "express-serve-static-core";
+import { Request, RequestHandler, Response, Router } from "express";
 import fs from "fs";
 import path from "path";
 import sharp from "sharp";

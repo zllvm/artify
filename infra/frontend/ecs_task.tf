@@ -99,8 +99,12 @@ resource "aws_ecs_task_definition" "main" {
           value = tostring(var.container_port)
         },
         {
-          name  = "API_URL"
+          name  = "NEXT_PUBLIC_BACKEND_URL"
           value = var.backend_url
+        },
+        {
+          name  = "NEXT_PUBLIC_API_URL"
+          value = var.backend_api_url
         },
         {
           name  = "JWT_PUBLIC_KEY"

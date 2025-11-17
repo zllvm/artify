@@ -1,15 +1,37 @@
-import base from "../../eslint.config.js";
+import ts from "typescript-eslint";
 import globals from "globals";
-import parser from "@typescript-eslint/parser";
 import reactPlugin from "eslint-plugin-react";
 import reactHooks from "eslint-plugin-react-hooks";
+import prettier from "eslint-config-prettier";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default [
-  ...base,
+  {
+    ignores: [
+      "**/dist/**",
+      "**/.next/**",
+      "**/out/**",
+      "**/next-env.d.ts",
+      "**/node_modules/**",
+    ],
+  },
+
+  ...ts.configs.recommendedTypeChecked.map((cfg) => ({
+    ...cfg,
+    files: ["**/*.ts", "**/*.tsx"],
+    languageOptions: {
+      ...cfg.languageOptions,
+      parserOptions: {
+        projectService: true,
+        tsconfigRootDir: __dirname,
+      },
+    },
+  })),
+
+  prettier,
 
   //
   // --- Frontend (client-side React code) ---
@@ -25,14 +47,9 @@ export default [
       "react-hooks": reactHooks,
     },
     languageOptions: {
-      parser,
       parserOptions: {
         projectService: true,
         tsconfigRootDir: __dirname,
-        project: [
-          path.resolve(__dirname, "tsconfig.json"),
-          path.resolve(__dirname, "../../packages/shared/tsconfig.json"),
-        ],
         ecmaFeatures: { jsx: true },
       },
       globals: {
@@ -63,14 +80,9 @@ export default [
       "src/app/api/**/*.{ts,tsx,js,jsx}",
     ],
     languageOptions: {
-      parser,
       parserOptions: {
         projectService: true,
         tsconfigRootDir: __dirname,
-        project: [
-          path.resolve(__dirname, "tsconfig.json"),
-          path.resolve(__dirname, "../../packages/shared/tsconfig.json"),
-        ],
       },
       globals: {
         ...globals.node,

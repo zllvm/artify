@@ -1,11 +1,10 @@
 import "server-only";
 
-import { importSPKI, jwtVerify } from "jose";
+import { importSPKI, JWTPayload, jwtVerify } from "jose";
 
 import { SessionPayload } from "@/lib/definitions";
 import { epochSecondsToDate } from "@/utils/dateUtils";
 
-import type { JwtPayload } from "jsonwebtoken";
 if (!process.env.JWT_PUBLIC_KEY) {
   throw new Error("JWT_PUBLIC_KEY is not defined in environment variables");
 }
@@ -23,7 +22,7 @@ export async function decrypt(
   try {
     if (!session) return null;
 
-    const { payload } = await jwtVerify<JwtPayload>(session, publicKey, {
+    const { payload } = await jwtVerify<JWTPayload>(session, publicKey, {
       algorithms: [JWT_ALGORITHM],
     });
 

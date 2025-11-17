@@ -67,6 +67,11 @@ resource "aws_iam_role_policy_attachment" "ecs_execution_role_policy" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
+resource "aws_iam_role_policy_attachment" "ecs_execution_secret_access" {
+  role       = aws_iam_role.ecs_task_execution_role.name
+  policy_arn = module.json_secret.read_policy_arn
+}
+
 resource "aws_ecs_task_definition" "main" {
   family                   = "${local.env_service_name}"
   network_mode              = "awsvpc"
@@ -118,20 +123,12 @@ resource "aws_ecs_task_definition" "main" {
           value = var.app_version
         }
       ],
-      secrets = [
-        {
-          name  = "SENTRY_AUTH_TOKEN"
-          value = var.sentry_auth_token
-        },
-        {
-          name  = "SERVICE_CLIENT_ID"
-          value = var.service_client_id
-        },
-        {
-          name  = "SERVICE_CLIENT_SECRET"
-          value = var.service_client_secret
-        },
-      ],
+      # secrets = [
+      #   for key in local.secret_keys : {
+      #     name      = key
+      #     valueFrom = "${module.json_secret.secret_arn}:${key}::"
+      #   }
+      # ]
       logConfiguration = {
         logDriver = "awslogs"
         options = {

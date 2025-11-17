@@ -79,7 +79,9 @@ export default class JwtService {
   private resolveExpiresInSeconds(value: SignOptions["expiresIn"]): number {
     if (typeof value === "number") return value;
     if (typeof value === "string") {
-      const milliseconds: number = ms(value);
+      // Type assertion needed for CI environment where ms() return type isn't properly inferred
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+      const milliseconds = ms(value) as number;
       return milliseconds / 1000;
     }
     throw new Error("Invalid expiresIn value");

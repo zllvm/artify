@@ -1,12 +1,15 @@
-import { Request, Response, Router } from 'express';
-import { z } from 'zod';
+import { Request, Response, Router } from "express";
+import { z } from "zod";
 
-import { Platform } from '@artify/shared';
+import { Platform } from "@artify/shared";
 
-import { ShareModel } from '../models/share.js';
-import { logger } from '../utils/logger.js';
+import config from "../config/environment.js";
+import { PaintingModel } from "../models/painting.js";
+import { ShareModel } from "../models/share.js";
+import { logger } from "../utils/logger/logger.js";
 
-import type { ApiResponse, Share } from "@artify/shared";
+import type { RequestHandler } from "express";
+import type { ApiResponse, AnyShare } from "@artify/shared";
 
 export const createShareSchema = z.object({
   paintingId: z.string(),
@@ -14,27 +17,28 @@ export const createShareSchema = z.object({
   alias: z.string().optional(),
   description: z.string().optional(),
   tags: z.array(z.string()).optional(),
-  platform: z.nativeEnum(Platform),
+  platform: z.enum(Platform),
   isPublished: z.boolean().optional(),
+  linkedShareId: z.string().optional(),
 });
 
 export type CreateShareRequest = z.infer<typeof createShareSchema>;
 const updateShareSchema = createShareSchema.partial();
 
 // Create router factory
-export const createShareRouter = () => {
+export const createShareRouter = (requireAnyAuth: RequestHandler) => {
   const router = Router();
 
   // GET all shares
   router.get("/", (_req: Request, res: Response) => {
     logger.info("Fetching all shares");
     const shares = ShareModel.findAll();
-    const response: ApiResponse<Share[]> = { success: true, data: shares };
+    const response: ApiResponse<AnyShare[]> = { success: true, data: shares };
     res.json(response);
   });
 
   // GET share by ID
-  router.get("/:id", (req: Request, res: Response) => {
+  router.get("/:id", requireAnyAuth, (req: Request, res: Response) => {
     try {
       const share = ShareModel.findById(req.params.id);
       if (!share) {
@@ -49,11 +53,37 @@ export const createShareRouter = () => {
     }
   });
 
+  router.get(
+    "/painting/:paintingId",
+    requireAnyAuth,
+    (req: Request, res: Response) => {
+      try {
+        const shares = ShareModel.findByPaintingId(req.params.paintingId);
+        res.json({ success: true, data: shares });
+      } catch (err) {
+        logger.error("Error fetching shares by painting ID", err as Error);
+        res
+          .status(500)
+          .json({ success: false, error: "Failed to fetch shares" });
+      }
+    }
+  );
+
   router.post(
     "/",
     (req: Request<unknown, unknown, CreateShareRequest>, res: Response) => {
       try {
         const parsed = createShareSchema.parse(req.body);
+
+        const painting = PaintingModel.findById(parsed.paintingId);
+
+        let artifyLink;
+        if (parsed.linkedShareId) {
+          artifyLink = {
+            shareId: parsed.linkedShareId,
+            url: `${config.app.frontendUrl}/art/${parsed.linkedShareId}`,
+          };
+        }
 
         const share = ShareModel.create({
           paintingId: parsed.paintingId,
@@ -63,6 +93,9 @@ export const createShareRouter = () => {
           tags: parsed.tags,
           platform: parsed.platform,
           isPublished: parsed.isPublished ?? false,
+          title: painting?.title,
+          images: painting?.images ?? { original: "" },
+          artify: artifyLink,
         });
 
         logger.info("Share created", {
@@ -82,12 +115,27 @@ export const createShareRouter = () => {
   router.patch("/:id", (req: Request, res: Response) => {
     try {
       const parsed = updateShareSchema.parse(req.body);
-      const share = ShareModel.update(req.params.id, parsed);
+
+      let artifyLink;
+      if (parsed.linkedShareId) {
+        artifyLink = {
+          shareId: parsed.linkedShareId,
+          url: `${config.app.frontendUrl}/art/${parsed.linkedShareId}`,
+        };
+      }
+
+      const updates = { ...parsed, artify: artifyLink };
+
+      const share = ShareModel.update(req.params.id, updates);
+
       if (!share) {
         return res
           .status(404)
           .json({ success: false, error: "Share not found" });
       }
+
+      const painting = PaintingModel.findById(share.paintingId);
+      share.title = painting?.title;
 
       logger.info("Share updated", { shareId: share.id });
       res.json({ success: true, data: share });
@@ -97,7 +145,6 @@ export const createShareRouter = () => {
     }
   });
 
-  // PUBLISH a share
   router.post("/:id/publish", (req: Request, res: Response) => {
     try {
       const share = ShareModel.publish(req.params.id);
@@ -120,7 +167,6 @@ export const createShareRouter = () => {
     }
   });
 
-  // UNPUBLISH (only allowed for Artify)
   router.post("/:id/unpublish", (req: Request, res: Response) => {
     try {
       const share = ShareModel.findById(req.params.id);
@@ -130,7 +176,10 @@ export const createShareRouter = () => {
           .json({ success: false, error: "Share not found" });
       }
 
-      if (share.platform !== Platform.Artify) {
+      if (
+        share.platform !== Platform.Artify &&
+        share.platform !== Platform.Facebook
+      ) {
         return res.status(400).json({
           success: false,
           error: `Unpublishing is not supported for platform: ${share.platform}`,
@@ -148,7 +197,6 @@ export const createShareRouter = () => {
     }
   });
 
-  // DELETE share
   router.delete("/:id", (req: Request, res: Response) => {
     try {
       const success = ShareModel.delete(req.params.id);

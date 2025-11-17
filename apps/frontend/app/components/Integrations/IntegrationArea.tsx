@@ -12,9 +12,17 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import ArtifyIntegration from "./ArtifyIntegration/ArtifyIntegration";
 import { ArtifyLogoIcon } from "./ArtifyLogoIcon";
+import FacebookIntegration from "./FacebookIntegration/FacebookIntegration";
 import styles from "./IntegrationArea.module.css";
+import PinterestIntegration from "./PinterestIntegration/PinterestIntegration";
 
-import type { Share } from "@artify/shared";
+import type {
+  AnyShare,
+  ArtifyShare,
+  FacebookShare,
+  Painting,
+  PinterestShare,
+} from "@artify/shared";
 import type { IconName } from "@fortawesome/fontawesome-svg-core";
 library.add(faPinterest, faFacebookF, faInstagram, faPalette);
 
@@ -27,14 +35,16 @@ const integrations = [
 
 type Props = {
   paintingId: string;
-  share?: Share;
-  onCreated?: (share: Share) => void;
-  onUpdated?: (share: Share) => void;
+  painting: Painting;
+  share?: AnyShare;
+  onCreated?: (share: AnyShare) => void;
+  onUpdated?: (share: AnyShare) => void;
   onClose?: () => void;
 };
 
 export default function IntegrationArea({
   paintingId,
+  painting,
   share,
   onCreated,
   onUpdated,
@@ -137,7 +147,8 @@ export default function IntegrationArea({
           {selectedPlatform === Platform.Artify ? (
             <ArtifyIntegration
               paintingId={paintingId}
-              share={share}
+              share={share as ArtifyShare}
+              painting={painting}
               onClose={() => {
                 setSelectedPlatform(null);
                 onClose?.();
@@ -146,9 +157,27 @@ export default function IntegrationArea({
               onUpdated={onUpdated}
             />
           ) : selectedPlatform === Platform.Pinterest ? (
-            <div>Pinterest Integration Component</div>
+            <PinterestIntegration
+              paintingId={paintingId}
+              share={share as PinterestShare}
+              onClose={() => {
+                setSelectedPlatform(null);
+                onClose?.();
+              }}
+              onCreated={onCreated}
+              onUpdated={onUpdated}
+            />
           ) : selectedPlatform === Platform.Facebook ? (
-            <div>Facebook Integration Component</div>
+            <FacebookIntegration
+              paintingId={paintingId}
+              share={share as FacebookShare}
+              onClose={() => {
+                setSelectedPlatform(null);
+                onClose?.();
+              }}
+              onCreated={onCreated}
+              onUpdated={onUpdated}
+            />
           ) : selectedPlatform === Platform.Instagram ? (
             <div>Instagram Integration Component</div>
           ) : null}

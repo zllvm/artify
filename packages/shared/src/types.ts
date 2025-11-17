@@ -1,16 +1,27 @@
+export const MAX_IMAGE_SIZE_BYTES = 50 * 1024 * 1024; // 50 MB
+
 export interface Painting {
   id: string;
   title?: string;
   description?: string;
   tags?: string[];
-  imageUrl: string;
+  images: {
+    thumbnail: string;
+    web: string;
+    original: string;
+  };
   manifestId?: string; // Reference to user's manifest
   createdAt: Date;
   updatedAt: Date;
   userId: string;
 }
 
-export interface Share {
+export interface ArtifyLink {
+  shareId: string;
+  url: string;
+}
+
+export interface Share<T> {
   id: string;
   paintingId: string;
   userId: string;
@@ -22,7 +33,34 @@ export interface Share {
   publishDate?: Date;
   createdAt: Date;
   updatedAt: Date;
+  metadata?: T;
+  title?: string;
+  images: {
+    thumbnail?: string;
+    web?: string;
+    original: string;
+  };
+  artify?: ArtifyLink;
 }
+
+export interface PinterestMetadata {
+  boardId?: string;
+  pinId?: string;
+}
+
+export interface MetadataMap {
+  [Platform.Artify]: never;
+  [Platform.Pinterest]: PinterestMetadata;
+  [Platform.Facebook]: { postId: string };
+  [Platform.Instagram]: { reelId: string };
+}
+
+export type ShareFor<P extends Platform> = Share<MetadataMap[P]>;
+export type AnyShare = Share<MetadataMap[keyof MetadataMap]>;
+
+export type ArtifyShare = ShareFor<Platform.Artify>;
+export type PinterestShare = ShareFor<Platform.Pinterest>;
+export type FacebookShare = ShareFor<Platform.Facebook>;
 
 export interface Manifest {
   id: string;
@@ -44,6 +82,11 @@ export interface ApiResponse<T> {
   error?: string;
 }
 
+export interface ApiToken {
+  token: string;
+  expireAt: Date;
+}
+
 export enum Platform {
   Artify = "artify",
   Pinterest = "pinterest",
@@ -51,14 +94,18 @@ export enum Platform {
   Instagram = "instagram",
 }
 
-export interface IUser {
+export interface IUserDto {
   id: string;
   email: string;
-  displayName: string;
-  token?: string;
+  name: string;
+  displayName?: string;
+  isAuthenticated: boolean;
+  tokenExpiresAt?: string;
+  isPinterestConnected: boolean;
+  role: "admin" | "artist" | "viewer";
 }
 
-export interface CreateShareRequest {
+export interface CreatePinterestShareRequest {
   paintingId: string;
   userId: string;
   alias?: string;
@@ -66,4 +113,33 @@ export interface CreateShareRequest {
   tags?: string[];
   platform: Platform;
   isPublished?: boolean;
+  boardId: string;
+  linkedShareId?: string;
+}
+
+export type UpdatePinterestShareRequest = Partial<CreatePinterestShareRequest>;
+
+export interface PinterestBoard {
+  id: string;
+  name: string;
+  description?: string;
+  created_at: string;
+}
+
+export interface PinterestBoardsResponse {
+  items: PinterestBoard[];
+  bookmark?: string;
+}
+
+export interface AppJwtPayload {
+  iss?: string;
+  sub?: string;
+  aud?: string | string[];
+  exp?: number;
+  nbf?: number;
+  iat?: number;
+  jti?: string;
+  email: string;
+  name: string;
+  [key: string]: unknown;
 }

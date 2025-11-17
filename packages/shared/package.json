@@ -15,6 +15,16 @@
       "require": "./dist/utils/common.js",
       "types": "./dist/utils/common.d.ts"
     },
+    "./utils/format": {
+      "import": "./dist/utils/format.js",
+      "require": "./dist/utils/format.js",
+      "types": "./dist/utils/format.d.ts"
+    },
+    "./utils/dateUtils": {
+      "import": "./dist/utils/dateUtils.js",
+      "require": "./dist/utils/dateUtils.js",
+      "types": "./dist/utils/dateUtils.d.ts"
+    },
     "./utils/imageUtils": {
       "import": "./dist/utils/imageUtils.js",
       "require": "./dist/utils/imageUtils.js",

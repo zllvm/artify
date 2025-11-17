@@ -1,11 +1,11 @@
-import { randomUUID } from "crypto";
 import { Request, Response, Router } from "express";
+import { RequestHandler } from "express-serve-static-core";
 import fs from "fs";
 import path from "path";
 import sharp from "sharp";
 import { z } from "zod";
 
-import { formatFileSize } from "@artify/shared/utils/common";
+import { formatBytes, MAX_IMAGE_SIZE_BYTES } from "@artify/shared";
 import {
   detectImageFormat,
   getFilenameFromUrl,
@@ -14,12 +14,11 @@ import {
 import { ManifestModel } from "../models/manifest.js";
 import { PaintingModel } from "../models/painting.js";
 import { ChatGptService } from "../services/chatGptService.js";
-import { logger } from "../utils/logger.js";
+import { ImageService } from "../services/imageService.js";
+import { logger } from "../utils/logger/logger.js";
 import { upload, UPLOADS_DIR } from "../utils/multer.js";
 
 import type { ApiResponse, Painting } from "@artify/shared";
-
-const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
 
 export const uploadBodySchema = z.object({
   imageUrl: z.url().optional(),
@@ -44,6 +43,7 @@ export const DescribeQuerySchema = z.object({
   title: z.string().optional(),
   description: z.string().optional(),
   tags: z.string().optional(),
+  maxLength: z.coerce.number().max(1000).optional(),
 });
 
 // For request body (JSON)
@@ -51,6 +51,7 @@ export const DescribeBodySchema = z.object({
   title: z.boolean().optional(),
   description: z.boolean().optional(),
   tags: z.boolean().optional(),
+  maxLength: z.coerce.number().max(1000).optional(),
 });
 
 export type DescribeQuery = z.infer<typeof DescribeQuerySchema>;
@@ -64,7 +65,10 @@ const UpdatePaintingSchema = z.object({
 
 type UpdatePaintingBody = z.infer<typeof UpdatePaintingSchema>;
 
-export const createPaintingRouter = (chatGptService: ChatGptService) => {
+export const createPaintingRouter = (
+  requireAuth: RequestHandler,
+  chatGptService: ChatGptService
+) => {
   const router = Router();
 
   router.get("/", (_req: Request, res: Response) => {
@@ -77,7 +81,7 @@ export const createPaintingRouter = (chatGptService: ChatGptService) => {
     res.json(response);
   });
 
-  router.get("/:id", (req: Request, res: Response) => {
+  router.get("/:id", requireAuth, (req: Request, res: Response) => {
     try {
       const painting = PaintingModel.findById(req.params.id);
       if (!painting) {
@@ -96,111 +100,87 @@ export const createPaintingRouter = (chatGptService: ChatGptService) => {
 
   router.post(
     "/upload",
+    requireAuth,
     upload.single("image"),
-    async (req: Request, res: Response) => {
+    async (req, res: Response) => {
       try {
+        const user = req.user;
+
+        if (!user) {
+          return res.status(401).send("Unauthorized");
+        }
+
         const parsed = uploadBodySchema.parse(req.body);
         const { imageUrl: providedUrl, manifestId } = parsed;
 
-        // --- Case 1: URL provided ---
-        if (providedUrl && typeof providedUrl === "string") {
-          logger.info("Creating painting from URL", { url: providedUrl });
+        let buffer: Buffer;
+        // ---------------------------------------------------------
+        // CASE 1: IMAGE URL
+        // ---------------------------------------------------------
+        if (providedUrl) {
+          logger.info("Uploading painting via URL", { providedUrl });
 
-          const response = await fetch(providedUrl);
-          if (!response.ok) {
+          buffer = await downloadWithLimit(providedUrl);
+
+          const meta = await sharp(buffer).metadata();
+          if (!meta.format) {
             return res.status(400).json({
               success: false,
-              error: `Failed to download image from ${providedUrl}`,
+              error: "Invalid image provided via URL",
+            });
+          }
+        }
+        // ---------------------------------------------------------
+        // CASE 2: FILE UPLOAD
+        // ---------------------------------------------------------
+        else {
+          if (!req.file) {
+            return res.status(400).json({
+              success: false,
+              error: "No image file or URL provided",
             });
           }
 
-          const contentLength = response.headers.get("content-length");
-          if (
-            contentLength &&
-            parseInt(contentLength, 10) > MAX_FILE_SIZE_BYTES
-          ) {
-            return res.status(400).json({
-              success: false,
-              error: "Image file is too large (max 10 MB)",
-            });
-          }
-
-          const buffer = await downloadWithLimit(providedUrl);
-
-          const metadata = await sharp(buffer).metadata();
-          if (!metadata.format) {
-            return res.status(400).json({
-              success: false,
-              error: "Provided URL is not a valid image",
-            });
-          }
-
-          // Normalize and limit image dimensions for storage
-          const format = metadata.format === "jpeg" ? "jpg" : metadata.format;
-          const filename = `${randomUUID()}.${format}`;
-          const outputPath = path.join(UPLOADS_DIR, filename);
-
-          // Resize large images down to max 4000px width (optional)
-          const optimizedBuffer = await sharp(buffer)
-            .resize({ width: 4000, fit: "inside" })
-            .toFormat(format as keyof sharp.FormatEnum, { quality: 90 })
-            .toBuffer();
-
-          // Save to /uploads
-          await fs.promises.writeFile(outputPath, optimizedBuffer);
-
-          const painting = PaintingModel.create({
-            // imageUrl: providedUrl,
-            imageUrl: `/uploads/${filename}`,
-            manifestId: manifestId || undefined,
-            userId: "demo-user",
+          logger.info("Uploading painting via file", {
+            originalName: req.file.originalname,
+            size: req.file.size,
           });
 
-          logger.info("Painting created successfully from URL", {
-            id: painting.id,
-            filename,
-            format,
-            size: `${Math.round(buffer.byteLength / 1024)} KB`,
-          });
-
-          const responsePayload: ApiResponse<Painting> = {
-            success: true,
-            data: painting,
-          };
-          return res.status(201).json(responsePayload);
+          buffer =
+            req.file.buffer ??
+            (await fs.promises.readFile(
+              path.join(UPLOADS_DIR, req.file.filename)
+            ));
         }
 
-        // --- Case 2: File upload ---
-        if (!req.file) {
-          logger.warn("Upload attempt without image file or URL");
-          return res.status(400).json({
-            success: false,
-            error: "No image file or URL provided",
-          });
-        }
-
-        logger.info("Creating new painting from uploaded file", {
-          filename: req.file.filename,
-          originalName: req.file.originalname,
-          size: req.file.size,
-        });
+        // ---------------------------------------------------------
+        // PROCESS IMAGE (master, web, thumbnail)
+        // ---------------------------------------------------------
+        const variants = await ImageService.processPainting(buffer);
 
         const painting = PaintingModel.create({
-          imageUrl: `/uploads/${req.file.filename}`,
+          images: {
+            original: variants.master.url,
+            web: variants.web.url,
+            thumbnail: variants.thumbnail.url,
+          },
           manifestId: manifestId || undefined,
-          userId: "demo-user",
+          userId: user.id,
         });
 
-        logger.info("Painting uploaded successfully", {
+        logger.info("Painting stored", {
           paintingId: painting.id,
+          sizes: {
+            masterKB: Math.round(variants.master.size / 1024),
+            webKB: Math.round(variants.web.size / 1024),
+            thumbKB: Math.round(variants.thumbnail.size / 1024),
+          },
         });
 
-        const response: ApiResponse<Painting> = {
+        return res.status(201).json({
           success: true,
           data: painting,
-        };
-
-        res.json(response);
+        } satisfies ApiResponse<Painting>);
       } catch (error) {
         logger.error("Failed to upload painting", error as Error);
         res.status(500).json({
@@ -211,14 +191,11 @@ export const createPaintingRouter = (chatGptService: ChatGptService) => {
     }
   );
 
-  router.post<
-    { id: string },
-    ApiResponse<Painting>,
-    DescribeBody,
-    DescribeQuery
-  >("/:id/describe", async (req, res) => {
+  router.post("/:id/describe", requireAuth, async (req, res) => {
     try {
-      const { query, body, params } = req;
+      const params = req.params as { id: string };
+      const body = req.body as DescribeBody;
+      const query = req.query as DescribeQuery;
 
       const queryResult = DescribeQuerySchema.safeParse(req.query);
       if (!queryResult.success) {
@@ -249,10 +226,10 @@ export const createPaintingRouter = (chatGptService: ChatGptService) => {
       }
 
       // 3. Check image file
-      const filePath = path.join(process.cwd(), painting.imageUrl);
+      const filePath = path.join(process.cwd(), painting.images.original);
       if (!fs.existsSync(filePath)) {
         logger.warn("Image file not found on disk", {
-          imageUrl: painting.imageUrl,
+          imageUrl: painting.images.web,
         });
         return res.status(400).json({
           success: false,
@@ -274,11 +251,12 @@ export const createPaintingRouter = (chatGptService: ChatGptService) => {
         body?.description === true ||
         (!wantTitle && query?.tags !== "true" && body?.tags !== true);
       const wantTags = query?.tags === "true" || body?.tags === true;
+      const maxLength = query?.maxLength ?? body?.maxLength ?? null;
 
       // 6. Build response data
       const result: ApiResponse<Painting>["data"] = {
         id: painting.id,
-        imageUrl: painting.imageUrl,
+        images: painting.images,
         manifestId: painting.manifestId,
         userId: painting.userId,
         tags: painting.tags,
@@ -289,6 +267,7 @@ export const createPaintingRouter = (chatGptService: ChatGptService) => {
         result.description = await chatGptService.describePainting({
           imageBase64,
           manifestContent,
+          limit: maxLength,
         });
       }
       if (wantTitle) {
@@ -320,7 +299,7 @@ export const createPaintingRouter = (chatGptService: ChatGptService) => {
   });
 
   // Get manifest for a specific painting
-  router.get("/:id/manifest", (req: Request, res: Response) => {
+  router.get("/:id/manifest", requireAuth, (req: Request, res: Response) => {
     try {
       const painting = PaintingModel.findById(req.params.id);
       if (!painting) {
@@ -395,7 +374,7 @@ export const createPaintingRouter = (chatGptService: ChatGptService) => {
     }
   );
 
-  router.get("/proxy/image", async (req, res) => {
+  router.get("/proxy/image", requireAuth, async (req, res) => {
     const imageUrl = req.query.url as string;
     if (!imageUrl || !imageUrl.startsWith("http")) {
       return res.status(400).json({ error: "Invalid image URL" });
@@ -423,7 +402,7 @@ export const createPaintingRouter = (chatGptService: ChatGptService) => {
         sharpFormat: metadata.format,
         url: imageUrl,
       });
-      const size = formatFileSize(buffer.byteLength);
+      const size = formatBytes(buffer.byteLength);
 
       const outputFormat = "jpeg";
       const base64 = `data:image/${outputFormat};base64,${thumbnail.toString(
@@ -470,7 +449,7 @@ async function downloadWithLimit(url: string): Promise<Buffer> {
     if (!value) continue;
 
     total += value.length;
-    if (total > MAX_FILE_SIZE_BYTES) {
+    if (total > MAX_IMAGE_SIZE_BYTES) {
       controller.abort(); // cancel request immediately
       throw new Error("Image exceeds maximum allowed size (10 MB)");
     }

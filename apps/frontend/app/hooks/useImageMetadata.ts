@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 
 import { ImageAdapter } from "@/adapters/ImageAdapter";
-import { formatFileSize } from "@artify/shared/utils/common";
+import { formatBytes } from "@artify/shared";
 
 type Props = {
   file: File | null;
@@ -82,7 +82,7 @@ export function useImageMetadata({
       setFileMetadata({
         width: img.width,
         height: img.height,
-        size: formatFileSize(file.size),
+        size: formatBytes(file.size),
         format: file.type.split("/")[1].toUpperCase(),
         filename: file.name,
       });

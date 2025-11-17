@@ -1,0 +1,192 @@
+.container {
+  flex: 1;
+  display: flex;
+  background-color: var(--white);
+  position: relative;
+}
+
+.workPanel {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 1rem;
+  background-color: var(--bg-base-color);
+  color: var(--text-color);
+  overflow-y: auto;
+  padding: 0.5rem;
+}
+
+.workPanel.empty {
+  background-image: url("/textures/wall.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  background-color: rgba(255, 255, 255, 0.65);
+  background-blend-mode: lighten;
+}
+
+.pageTitle {
+  position: absolute;
+  top: 0.25rem;
+  right: 0.25rem;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--primary-color, #333);
+
+  border: 1px solid var(--subtlest-border-color);
+  border-radius: calc(var(--spacing) * 1.5);
+  padding: 0rem 0.5rem;
+  background-color: var(--bg-base-color);
+}
+
+/* .container {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: start;
+  padding: 2rem 1rem;
+  gap: 2rem;
+  background-color: var(--white);
+  color: var(--text-color);
+  overflow-y: auto;
+} */
+
+.title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--primary-color, #333);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1.5rem;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  background-color: var(--card-bg, #fafafa);
+  border: 1px solid var(--subtlest-border-color, #e5e5e5);
+  border-radius: 1rem;
+  overflow: hidden;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  border-color: var(--accent-color2);
+}
+
+.imageWrapper {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  background-color: var(--card-bg-hover, #f3f3f3);
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.25s ease;
+}
+
+.card:hover .image {
+  transform: scale(1.05);
+}
+
+.info {
+  padding: 0.75rem 1rem 1rem;
+  text-align: center;
+}
+
+.name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-strong, #222);
+  margin: 0;
+  word-break: break-word;
+}
+
+.emptyGallery {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  gap: 5rem; /* Reduced gap might be better if you place them close */
+  font-size: 1.2rem;
+  color: var(--text-secondary);
+  /* Added: To allow absolute positioning of children relative to this container */
+  position: relative;
+}
+
+.uploadGraffitiLink {
+  transition: transform 0.2s ease;
+  z-index: 10;
+}
+
+.uploadGraffitiLink:hover {
+  transform: scale(1.05);
+}
+
+.uploadGraffitiImage {
+  max-width: min(450px, 80vw);
+  max-height: min(450px, 80vh);
+  height: auto;
+  object-fit: contain;
+  mix-blend-mode: multiply;
+  opacity: 0.9;
+}
+
+.emptyGalleryText {
+  /* display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.2rem; */
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  gap: 1rem;
+}
+
+.graffiti {
+  max-width: 280px;
+  height: auto;
+  opacity: 0.85;
+
+  transform: rotate(-15.5deg);
+  mix-blend-mode: multiply;
+  filter: brightness(2.9) contrast(1.1);
+
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+@media (min-width: 768px) {
+  .container {
+    padding: 0.5rem;
+  }
+
+  .workPanel {
+    border: 1px solid var(--subtlest-border-color);
+    border-radius: calc(var(--spacing) * 1.5);
+  }
+
+  .emptyGallery {
+    /* flex-direction: row; */
+  }
+}

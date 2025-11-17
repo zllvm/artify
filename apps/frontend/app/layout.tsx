@@ -1,11 +1,9 @@
-import type { Metadata, Viewport } from "next";
-
+import type { Metadata, Viewport } from "next/types";
 import "./icons/fontawesome";
 import "./styles/global.css";
 
 import {
   Geist,
-  Geist_Mono,
   Josefin_Sans,
   Montserrat,
   Space_Grotesk,
@@ -17,17 +15,18 @@ const geistSans = Geist({
   display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-header2",
-  subsets: ["latin"],
-  display: "swap",
-});
+// const geistMono = Geist_Mono({
+//   variable: "--font-header2",
+//   subsets: ["latin"],
+//   display: "swap",
+// });
 
 const montserrat = Montserrat({
   subsets: ["latin"],
   weight: ["500", "600"],
   variable: "--font-header",
   display: "swap",
+  preload: false,
 });
 
 const quicksand = Josefin_Sans({
@@ -35,6 +34,7 @@ const quicksand = Josefin_Sans({
   weight: ["400", "600", "700"],
   variable: "--font-logo",
   display: "swap",
+  preload: false,
 });
 
 const spaceGrotesk = Space_Grotesk({
@@ -42,6 +42,7 @@ const spaceGrotesk = Space_Grotesk({
   weight: ["400", "500", "600", "700"],
   variable: "--font-form-title",
   display: "swap",
+  preload: false,
 });
 
 export const metadata: Metadata = {
@@ -66,6 +67,9 @@ export const metadata: Metadata = {
       },
     ],
   },
+  // other: {
+  //   ...Sentry.getTraceData(),
+  // },
 };
 
 export const viewport: Viewport = {
@@ -90,7 +94,7 @@ export default function RootLayout({
       </head>
       <body
         suppressHydrationWarning={true}
-        className={`${geistSans.variable} ${geistMono.variable} ${montserrat.variable} ${quicksand.variable} ${spaceGrotesk.variable}`}
+        className={`${geistSans.variable} ${montserrat.variable} ${quicksand.variable} ${spaceGrotesk.variable}`}
       >
         {children}
       </body>

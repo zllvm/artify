@@ -51,3 +51,4 @@ jobs:
       environment: prod
       app: backend
       container_image: ${{ needs.push.outputs.container_image }}
+      version: ${{ needs.push.outputs.version }}

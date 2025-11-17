@@ -2,29 +2,29 @@ import { useEffect, useState } from "react";
 
 import { PaintingAdapter } from "@/adapters/PaintingAdapter";
 import { ShareAdapter } from "@/adapters/ShareAdapter";
+import Art from "@/components/Art/Art";
 import AutoGrowTextarea from "@/components/Inputs/AutoGrowTextarea";
-import { useAuth } from "@/hooks";
-import { Platform } from "@artify/shared";
-import {
-  faEyeSlash,
-  faLightbulb,
-  faTrash,
-} from "@fortawesome/free-solid-svg-icons";
+import { useAuth, useIsMobile } from "@/hooks";
+import { useAppSelector } from "@/store/hooks";
+import { formatDateTime } from "@/utils/dateUtils";
+import { AnyShare, Painting, Platform } from "@artify/shared";
+import { faEyeSlash, faLightbulb } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
+import { Toolbox } from "../Toolbox/Toolbox";
 import styles from "./ArtifyIntegration.module.css";
 
-import type { Share } from "@artify/shared";
-
+import type { ArtifyShare } from "@artify/shared";
 type ArtifyIntegrationProps = {
   paintingId: string;
+  painting: Painting;
   onClose?: () => void;
-  onCreated?: (share: Share) => void;
-  onUpdated?: (share: Share) => void;
-  share?: Share;
+  onCreated?: (share: ArtifyShare) => void;
+  onUpdated?: (share: ArtifyShare) => void;
+  share?: ArtifyShare;
 };
 
-type ChangeTitleModalProps = {
+type ChangeAliasModalProps = {
   initialAlias: string;
   onConfirm: (newTitle: string) => void;
   onCancel: () => void;
@@ -34,13 +34,12 @@ function ChangeAliasModal({
   initialAlias,
   onConfirm,
   onCancel,
-}: ChangeTitleModalProps) {
+}: ChangeAliasModalProps) {
   const [alias, setAlias] = useState(initialAlias);
 
   return (
-    <>
-      <div className="modalOverlay" onClick={onCancel} />
-      <div className="modal">
+    <div className="modalOverlay" onClick={onCancel}>
+      <div className="modal" onClick={(e) => e.stopPropagation()}>
         <div className="modalHeader">
           <h2>Change share alias</h2>
         </div>
@@ -65,17 +64,58 @@ function ChangeAliasModal({
           </div>
         </div>
       </div>
-    </>
+    </div>
+  );
+}
+
+type PreviewModalProps = {
+  share: AnyShare;
+  onCancel: () => void;
+};
+
+function PreviewModal({ share, onCancel }: PreviewModalProps) {
+  const isMobile = useIsMobile();
+
+  const { widthDesktop, widthMobile } = useAppSelector(
+    (state) => state.sidebar
+  );
+
+  const sidebarWidth = isMobile ? widthMobile : widthDesktop;
+
+  const modalStyle = {
+    marginLeft: `${sidebarWidth}px`,
+  };
+
+  return (
+    <div className="modalOverlay" onClick={onCancel}>
+      <div
+        className="modal modal--slim modal--dark"
+        style={modalStyle}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <Toolbox
+          onClose={onCancel}
+          canBeCompact={false}
+          right="0.75rem"
+          darkMode={true}
+        />
+        <div className="modal__content scroll--dark">
+          <Art share={share} />
+        </div>
+      </div>
+    </div>
   );
 }
 
 export default function ArtifyIntegration({
   paintingId,
+  painting,
   onClose,
   onCreated,
   onUpdated,
   share,
 }: ArtifyIntegrationProps) {
+  // const [toolboxMenuOpen, setToolboxMenuOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [alias, setAlias] = useState("");
   const [description, setDescription] = useState("");
@@ -84,7 +124,15 @@ export default function ArtifyIntegration({
   const [errors, setErrors] = useState<{ description?: string; tags?: string }>(
     {}
   );
+  const [suggesting, setSuggesting] = useState<{
+    desc: boolean;
+    tags: boolean;
+  }>({
+    desc: false,
+    tags: false,
+  });
   const [showChangeAlias, setShowChangeAlias] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
 
   const { user } = useAuth();
 
@@ -102,9 +150,12 @@ export default function ArtifyIntegration({
 
   const handleSaveAlias = async (newAlias: string) => {
     try {
-      const updatedShare = await ShareAdapter.update(share!.id, {
-        alias: newAlias,
-      });
+      const updatedShare = await ShareAdapter.update<Platform.Artify>(
+        share!.id,
+        {
+          alias: newAlias,
+        }
+      );
       if (updatedShare) {
         setAlias(updatedShare.alias || "");
         onUpdated?.(updatedShare);
@@ -117,6 +168,7 @@ export default function ArtifyIntegration({
 
   const SuggestDescription = () => {
     const fetchedDescription = async () => {
+      setSuggesting((s) => ({ ...s, desc: true }));
       try {
         const painting = await PaintingAdapter.describePainting(paintingId, {
           description: true,
@@ -128,6 +180,8 @@ export default function ArtifyIntegration({
         }
       } catch (error) {
         console.error("Error fetching suggested description:", error);
+      } finally {
+        setSuggesting((s) => ({ ...s, desc: false }));
       }
     };
     void fetchedDescription();
@@ -135,6 +189,7 @@ export default function ArtifyIntegration({
 
   const SuggestTags = () => {
     const fetchedTags = async () => {
+      setSuggesting((s) => ({ ...s, tags: true }));
       try {
         const painting = await PaintingAdapter.describePainting(paintingId, {
           tags: true,
@@ -145,6 +200,8 @@ export default function ArtifyIntegration({
         }
       } catch (error) {
         console.error("Error fetching suggested tags:", error);
+      } finally {
+        setSuggesting((s) => ({ ...s, tags: false }));
       }
     };
     void fetchedTags();
@@ -189,7 +246,7 @@ export default function ArtifyIntegration({
 
     try {
       if (isExisting) {
-        const updated = await ShareAdapter.update(share.id, {
+        const updated = await ShareAdapter.update<Platform.Artify>(share.id, {
           alias,
           description,
           tags,
@@ -199,9 +256,9 @@ export default function ArtifyIntegration({
           onUpdated?.(updated);
         }
       } else {
-        const created = await ShareAdapter.create({
+        const created = await ShareAdapter.create<Platform.Artify>({
           paintingId,
-          userId: user?.name ?? "foo",
+          userId: user!.id,
           alias: alias.trim() || undefined,
           description,
           tags,
@@ -231,23 +288,21 @@ export default function ArtifyIntegration({
     onClose?.();
   }
 
-  async function handleUnpublish() {
-    if (!share) return;
-    const updated = await ShareAdapter.unpublish(share.id);
-    if (updated) onUpdated?.(updated);
+  function onPreview() {
+    setShowPreview(true);
   }
 
-  function formatDateTime(date?: string | Date) {
-    if (!date) return "—";
-    const d = new Date(date);
-    return d.toLocaleString(undefined, {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false,
-    });
+  function onView() {
+    if (share && isExisting) {
+      const url = `/art/${share.id}`;
+      window.open(url, "_blank", "noopener,noreferrer");
+    }
+  }
+
+  async function handleUnpublish() {
+    if (!share) return;
+    const updated = await ShareAdapter.unpublish<Platform.Artify>(share.id);
+    if (updated) onUpdated?.(updated);
   }
 
   if (!user) {
@@ -265,11 +320,17 @@ export default function ArtifyIntegration({
       <div className={styles.titleRow}>
         <div className={styles.titleLeft}>
           {isExisting ? (
-            <h2>Edit share</h2>
+            <>
+              <h2 className={styles.platformName}>{Platform.Artify}: </h2>
+              <h2 className={styles.platformMode}>Edit share</h2>
+            </>
           ) : (
             <>
-              <h2>Create new share</h2>
-              <div className={styles.note}>Share your artwork on Artify</div>
+              <>
+                <h2 className={styles.platformName}>{Platform.Artify}: </h2>
+                <h2 className={styles.platformMode}>Create new share</h2>
+              </>
+              {/* <div className={styles.note}>Share your artwork on Artify.</div> */}
             </>
           )}
         </div>
@@ -283,6 +344,19 @@ export default function ArtifyIntegration({
             )}
           </div>
         )}
+        <Toolbox
+          onClose={onClose}
+          onDelete={
+            isExisting && !isReadonly ? () => void handleDelete() : undefined
+          }
+          onPreview={description && tags.length > 0 ? onPreview : undefined}
+          onView={share && isExisting ? onView : undefined}
+          onSave={() => void handleSubmit("draft")}
+          onPublish={
+            !isReadonly ? () => void handleSubmit("publish") : undefined
+          }
+          onUnpublish={isReadonly ? () => void handleUnpublish() : undefined}
+        />
       </div>
       {isExisting && (
         <div
@@ -351,15 +425,15 @@ export default function ArtifyIntegration({
           {!isReadonly && (
             <div className={styles.propertyActions}>
               <button
-                className="btn btn--subtle btn--slim"
+                className={`btn btn--ai btn--slim ${suggesting.desc ? "loading" : ""}`}
                 onClick={SuggestDescription}
                 disabled={loading}
               >
                 <FontAwesomeIcon
                   icon={faLightbulb}
-                  className={styles.iconMarginRight}
+                  className={`${styles.iconMarginRight} icon`}
                 />
-                Suggest
+                {suggesting.desc ? "Generating..." : "Suggest"}
               </button>
             </div>
           )}
@@ -390,15 +464,15 @@ export default function ArtifyIntegration({
           </div>
           {!isReadonly && (
             <button
-              className="btn btn--subtle btn--slim"
+              className={`btn btn--ai btn--slim ${suggesting.tags ? "loading" : ""}`}
               onClick={SuggestTags}
               disabled={loading || isReadonly}
             >
               <FontAwesomeIcon
                 icon={faLightbulb}
-                className={styles.iconMarginRight}
+                className={`${styles.iconMarginRight} icon`}
               />
-              Suggest
+              {suggesting.tags ? "Generating..." : "Suggest"}
             </button>
           )}
         </div>
@@ -449,8 +523,8 @@ export default function ArtifyIntegration({
         </div>
       </div>
       <div className={styles.actions}>
-        <div className={styles.extraActions}>
-          {!isReadonly && (
+        {/* <div className={styles.extraActions}>
+          {!isReadonly && isExisting && (
             <button
               className="btn btn--subtle btn--danger btn--slim"
               onClick={() => void handleDelete()}
@@ -459,15 +533,15 @@ export default function ArtifyIntegration({
               <FontAwesomeIcon icon={faTrash} /> Delete
             </button>
           )}
-        </div>
+        </div> */}
         <div className={styles.normalActions}>
-          <button
+          {/* <button
             className="btn btn--subtle"
             onClick={onClose}
             disabled={loading}
           >
             {isExisting ? "Close" : "Discard"}
-          </button>
+          </button> */}
           {!isReadonly && (
             <>
               <button
@@ -477,6 +551,17 @@ export default function ArtifyIntegration({
               >
                 {isExisting ? "Save" : "Save Draft"}
               </button>
+              {/* {isExisting && (
+                <Link
+                  href={`/art/${share.id}`}
+                  key={share.id}
+                  className="btn btn--subtle"
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
+                  Preview
+                </Link>
+              )} */}
               <button
                 className="btn btn--act"
                 onClick={() => void handleSubmit("publish")}
@@ -507,6 +592,24 @@ export default function ArtifyIntegration({
           initialAlias={alias || ""}
           onConfirm={(newAlias) => void handleSaveAlias(newAlias)}
           onCancel={() => setShowChangeAlias(false)}
+        />
+      )}
+      {showPreview && (
+        <PreviewModal
+          share={
+            {
+              id: "preview",
+              paintingId,
+              alias: alias || undefined,
+              description,
+              tags,
+              platform: Platform.Artify,
+              isPublished: false,
+              images: painting.images,
+              title: painting.title,
+            } as AnyShare
+          }
+          onCancel={() => setShowPreview(false)}
         />
       )}
     </div>

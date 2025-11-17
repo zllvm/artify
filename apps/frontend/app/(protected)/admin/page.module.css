@@ -1,0 +1,111 @@
+.container {
+  flex: 1;
+  display: flex;
+  background-color: var(--white);
+  position: relative;
+}
+
+.workPanel {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 1rem;
+  background-color: var(--bg-base-color);
+  color: var(--text-color);
+  overflow-y: auto;
+  padding: 0.5rem;
+}
+
+.pageTitle {
+  position: absolute;
+  top: 0.25rem;
+  right: 0.25rem;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--primary-color, #333);
+
+  border: 1px solid var(--subtlest-border-color);
+  border-radius: calc(var(--spacing) * 1.5);
+  padding: 0rem 0.5rem;
+  background-color: var(--bg-base-color);
+}
+
+.pageHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--subtlest-border-color);
+}
+
+.title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--primary-color);
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.actionButton {
+  padding: 0.4rem 0.8rem;
+  background: var(--primary-color);
+  border: none;
+  /* color: white; */
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.actionButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sectionHeader h2 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.section {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: var(--card-bg);
+  border: 1px solid var(--subtlest-border-color);
+  border-radius: 8px;
+}
+
+.json {
+  background: #0a0a0a;
+  padding: 1rem;
+  color: #e5e5e5;
+  font-family: "JetBrains Mono", monospace;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 500px;
+  overflow: auto;
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+
+@media (min-width: 768px) {
+  .container {
+    padding: 0.5rem;
+  }
+
+  .workPanel {
+    border: 1px solid var(--subtlest-border-color);
+    border-radius: calc(var(--spacing) * 1.5);
+  }
+}

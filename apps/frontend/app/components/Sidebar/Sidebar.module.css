@@ -38,7 +38,9 @@
   align-items: center;
   margin: 0 calc(var(--spacing) * 1.5);
   padding: calc(var(--spacing) * 1) calc(var(--spacing) * 2);
-  transition: background-color 0.2s ease, transform 0.1s ease;
+  transition:
+    background-color 0.2s ease,
+    transform 0.1s ease;
   border-radius: calc(var(--spacing) * 2);
   gap: calc(var(--spacing) * 3);
   /* background-color: rgba(62, 232, 212, 0.305); */
@@ -74,6 +76,10 @@
 }
 
 .navLink:hover {
+  background-color: rgba(92, 169, 160, 0.1);
+}
+
+.navLink.active {
   background-color: rgba(92, 169, 160, 0.1);
 }
 

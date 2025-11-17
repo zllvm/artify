@@ -12,6 +12,9 @@ on:
       container_image:
         type: string
         required: true
+      version:
+        type: string
+        required: true
 
 env:
   TF_WORKING_DIR: ./infra/${{ inputs.app }}
@@ -51,11 +54,14 @@ jobs:
           terraform plan -input=false \
             -var="service_name=${{ vars.SERVICE_NAME }}" \
             -var="app_name=${{ inputs.app }}" \
+            -var="app_version=${{ inputs.version }}" \
             -var="env=${{ inputs.environment }}" \
             -var="backend_url=${{ vars.BACKEND_URL }}" \
             -var="container_image=${{ inputs.container_image }}" \
             -var="jwt_public_key=${{ vars.JWT_PUBLIC_KEY }}" \
             -var="domain_name=${{ vars.DOMAIN_NAME }}" \
+            -var="public_sentry_dsn=${{ vars.PUBLIC_SENTRY_DSN }}" \
+            -var="sentry_auth_token=${{ vars.SENTRY_AUTH_TOKEN }}" \
             -out=tfplan_aws
         working-directory: ${{ env.TF_WORKING_DIR }}
 
@@ -65,6 +71,7 @@ jobs:
           terraform plan -input=false \
             -var="service_name=${{ vars.SERVICE_NAME }}" \
             -var="app_name=${{ inputs.app }}" \
+            -var="app_version=${{ inputs.version }}" \
             -var="env=${{ inputs.environment }}" \
             -var="base_url=${{ vars.BASE_URL }}" \
             -var="frontend_url=${{ vars.FRONTEND_URL }}" \

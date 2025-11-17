@@ -2,21 +2,39 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useRef, useState } from "react";
 
 import { useAuth } from "@/hooks";
-import { faHome, faImages, faUpload } from "@fortawesome/free-solid-svg-icons";
+import {
+  faGear,
+  faHome,
+  faImages,
+  faUpload,
+  faUserShield,
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import styles from "./Sidebar.module.css";
 
-export default function Sidebar() {
+export default function Sidebar({ initialPath }: { initialPath: string }) {
   const { user, logout } = useAuth();
   const [showContextMenu, setShowContextMenu] = useState(false);
   const contextMenuRef = useRef<HTMLDivElement>(null);
-  const handleLogin = () => {
-    window.location.href = "/";
-  };
+  const pathname = usePathname() || initialPath;
+
+  const adminLinks =
+    user?.role === "admin"
+      ? [{ href: "/admin", label: "Admin", icon: faUserShield }]
+      : [];
+
+  const links = [
+    { href: "/", label: "Home", icon: faHome },
+    { href: "/gallery", label: "Gallery", icon: faImages },
+    { href: "/upload", label: "Upload", icon: faUpload },
+    { href: "/settings", label: "Settings", icon: faGear },
+    ...adminLinks,
+  ];
 
   return (
     <>
@@ -32,24 +50,25 @@ export default function Sidebar() {
         </div>
       </div>
       <nav className={styles.nav}>
-        <Link href="/" className={styles.navLink}>
-          <div className={styles.navIcon}>
-            <FontAwesomeIcon icon={faHome} className={styles.icon} />
-          </div>
-          <div className={`${styles.navItem} ${styles.truncate}`}>Home</div>
-        </Link>
-        <Link href="/gallery" className={styles.navLink}>
-          <div className={styles.navIcon}>
-            <FontAwesomeIcon icon={faImages} className={styles.icon} />
-          </div>
-          <div className={`${styles.navItem} ${styles.truncate}`}>Gallery</div>
-        </Link>
-        <Link href="/upload" className={styles.navLink}>
-          <div className={styles.navIcon}>
-            <FontAwesomeIcon icon={faUpload} className={styles.icon} />
-          </div>
-          <div className={`${styles.navItem} ${styles.truncate}`}>Upload</div>
-        </Link>
+        {links.map(({ href, label, icon }) => {
+          const isActive =
+            href === "/" ? pathname === href : pathname.startsWith(href);
+
+          return (
+            <Link
+              key={href}
+              href={href}
+              className={`${styles.navLink} ${isActive ? styles.active : ""}`}
+            >
+              <div className={styles.navIcon}>
+                <FontAwesomeIcon icon={icon} className={styles.icon} />
+              </div>
+              <div className={`${styles.navItem} ${styles.truncate}`}>
+                {label}
+              </div>
+            </Link>
+          );
+        })}
       </nav>
       <div className={styles.sidebarContent}>
         {/* Main content can go here */}
@@ -65,13 +84,9 @@ export default function Sidebar() {
             }}
           >
             <div className={styles.userAvatar}>
-              {(user.name || user.displayName || user.email)
-                ?.charAt(0)
-                .toUpperCase() || "U"}
+              {(user.name || user.email)?.charAt(0).toUpperCase() || "U"}
             </div>
-            <span className={styles.userName}>
-              {user.name || user.displayName || user.email}
-            </span>
+            <span className={styles.userName}>{user.name || user.email}</span>
             {showContextMenu && (
               <div className={styles.contextMenu}>
                 <button
@@ -87,13 +102,7 @@ export default function Sidebar() {
             )}
           </div>
         </div>
-      ) : (
-        <div className={styles.sidebarFooter}>
-          <button className={styles.loginButton} onClick={handleLogin}>
-            Log In
-          </button>
-        </div>
-      )}
+      ) : null}
     </>
   );
 }

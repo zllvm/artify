@@ -8,6 +8,11 @@ variable "app_name" {
   type        = string
 }
 
+variable app_version {
+  description = "Application version"
+  type        = string
+}
+
 variable "env" {
   description = "Application env"
   type        = string
@@ -61,5 +66,5 @@ variable "domain_name" {
 variable "health_endpoint" {
   description = "Health check endpoint"
   type        = string
-  default     = "/api/health"
+  default     = "/backend/diagnostic/ping"
 }

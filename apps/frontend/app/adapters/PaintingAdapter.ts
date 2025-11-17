@@ -20,7 +20,7 @@ export class PaintingAdapter {
     else if (imageUrl) formData.append("imageUrl", imageUrl);
     else throw new Error("No image source provided.");
 
-    const res = await fetch(`${API_URL}/api/paintings/upload`, {
+    const res = await fetch(`${API_URL}/paintings/upload`, {
       method: "POST",
       body: formData,
       credentials: "include",
@@ -39,7 +39,7 @@ export class PaintingAdapter {
   }
 
   static async getPainting(paintingId: string): Promise<Painting | null> {
-    const res = await fetch(`${API_URL}/api/paintings/${paintingId}`, {
+    const res = await fetch(`${API_URL}/paintings/${paintingId}`, {
       credentials: "include",
     });
 
@@ -58,7 +58,7 @@ export class PaintingAdapter {
     paintingId: string,
     updates: Partial<Pick<Painting, "title">>
   ): Promise<Painting | null> {
-    const res = await fetch(`${API_URL}/api/paintings/${paintingId}`, {
+    const res = await fetch(`${API_URL}/paintings/${paintingId}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
@@ -80,7 +80,7 @@ export class PaintingAdapter {
 
   // Get manifest
   static async getManifest(): Promise<Manifest | null> {
-    const res = await fetch(`${API_URL}/api/manifest`, {
+    const res = await fetch(`${API_URL}/manifest`, {
       credentials: "include",
     });
 
@@ -97,7 +97,7 @@ export class PaintingAdapter {
 
   // Update manifest
   static async updateManifest(content: string): Promise<Manifest | null> {
-    const res = await fetch(`${API_URL}/api/manifest`, {
+    const res = await fetch(`${API_URL}/manifest`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -119,7 +119,12 @@ export class PaintingAdapter {
 
   static async describePainting(
     paintingId: string,
-    options?: { title?: boolean; description?: boolean; tags?: boolean }
+    options?: {
+      title?: boolean;
+      description?: boolean;
+      tags?: boolean;
+      maxLength?: number | null;
+    }
   ): Promise<Painting | null> {
     const params = new URLSearchParams();
     if (options?.title !== undefined)
@@ -128,9 +133,11 @@ export class PaintingAdapter {
       params.append("description", String(options.description));
     if (options?.tags !== undefined)
       params.append("tags", String(options.tags));
+    if (options?.maxLength !== undefined && options.maxLength !== null)
+      params.append("maxLength", String(options.maxLength));
     const query = params.toString() ? `?${params.toString()}` : "";
     const res = await fetch(
-      `${API_URL}/api/paintings/${paintingId}/describe${query}`,
+      `${API_URL}/paintings/${paintingId}/describe${query}`,
       {
         method: "POST",
         credentials: "include",
@@ -147,7 +154,7 @@ export class PaintingAdapter {
   }
 
   static async getAll(): Promise<Painting[]> {
-    const res = await fetch(`${API_URL}/api/paintings`, {
+    const res = await fetch(`${API_URL}/paintings`, {
       credentials: "include",
     });
 

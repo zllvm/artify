@@ -1,80 +1,108 @@
 "use client";
 
-import { createContext, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef } from "react";
+
+import { logoutUser, setUser } from "@/store/authSlice";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { IUserDto } from "@artify/shared";
 
 import { API_URL } from "../config";
+import { AuthContext } from "../context/authContext";
 
 import type { ReactNode } from "react";
 
-type User = {
-  id: string;
-  displayName?: string;
-  name?: string;
-  email?: string;
-} | null;
-
-type AuthContextType = {
-  user: User;
-  loading: boolean;
-  refreshUser: () => Promise<void>;
-  logout: () => Promise<void>;
-  login: () => void;
-  googleLogin: () => void;
+type AuthProviderProps = {
+  children: ReactNode;
 };
 
-export const AuthContext = createContext<AuthContextType | undefined>(
-  undefined
-);
+export function AuthProvider({ children }: AuthProviderProps) {
+  const user = useAppSelector((state) => state.auth.user);
+  const dispatch = useAppDispatch();
 
-export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User>(null);
-  const [loading, setLoading] = useState(true);
-
-  const refreshUser = async () => {
+  const logout = useCallback(async () => {
     try {
-      const res = await fetch(`${API_URL}/api/auth/me`, {
+      await fetch(`${API_URL}/auth/logout`, {
+        method: "POST",
         credentials: "include",
       });
-      if (res.ok) {
-        const user = (await res.json()) as User;
-        setUser(user);
-      } else {
-        setUser(null);
-      }
-    } catch {
-      setUser(null);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const logout = async () => {
-    await fetch(`${API_URL}/api/auth/logout`, {
-      method: "POST",
-      credentials: "include",
-    });
-    setUser(null);
+    } catch {}
+    dispatch(logoutUser());
     window.location.href = "/";
-  };
+  }, [dispatch]);
 
-  const login = () => {
-    window.location.href = "/";
-  };
-
-  const googleLogin = () => {
-    window.location.href = `${API_URL}/api/auth/google`;
-  };
+  const logoutRef = useRef(logout);
+  useEffect(() => {
+    logoutRef.current = logout;
+  }, [logout]);
 
   useEffect(() => {
-    void (async () => {
-      await refreshUser();
-    })();
+    if (!user?.tokenExpiresAt) return;
+
+    const expiresInMs = new Date(user.tokenExpiresAt).getTime() - Date.now();
+
+    const doLogout = () => void logoutRef.current();
+
+    if (expiresInMs <= 0) {
+      doLogout();
+      return;
+    }
+
+    const timer = setTimeout(doLogout, expiresInMs);
+
+    return () => clearTimeout(timer);
+  }, [user?.tokenExpiresAt, logoutRef]);
+
+  useEffect(() => {
+    const timeoutMs = 30 * 60 * 1000;
+
+    let timer: ReturnType<typeof setTimeout>;
+
+    const reset = () => {
+      clearTimeout(timer);
+      timer = setTimeout(() => void logoutRef.current(), timeoutMs);
+    };
+
+    const events = ["mousemove", "keydown", "click", "scroll"];
+
+    events.forEach((event) => window.addEventListener(event, reset));
+
+    reset();
+
+    return () => {
+      events.forEach((event) => window.removeEventListener(event, reset));
+      clearTimeout(timer);
+    };
+  }, []);
+
+  const refreshUser = useCallback(async () => {
+    const res = await fetch(`${API_URL}/auth/me`, {
+      credentials: "include",
+    });
+
+    if (res.status === 401) {
+      void logoutRef.current();
+      return;
+    }
+
+    const user = (await res.json()) as IUserDto;
+
+    dispatch(setUser(user));
+  }, [dispatch]);
+
+  const refreshRef = useRef(refreshUser);
+  useEffect(() => {
+    refreshRef.current = refreshUser;
+  }, [refreshUser]);
+
+  useEffect(() => {
+    const handler = () => void refreshRef.current();
+
+    window.addEventListener("focus", handler);
+    return () => window.removeEventListener("focus", handler);
   }, []);
 
   return (
-    <AuthContext.Provider
-      value={{ user, loading, refreshUser, logout, login, googleLogin }}
-    >
+    <AuthContext.Provider value={{ user, logout, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );

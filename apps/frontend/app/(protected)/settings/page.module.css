@@ -1,0 +1,175 @@
+.container {
+  flex: 1;
+  display: flex;
+  background-color: var(--white);
+  position: relative;
+}
+
+.workPanel {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 1rem;
+  background-color: var(--bg-base-color);
+  color: var(--text-color);
+  overflow-y: auto;
+  padding: 0.5rem;
+}
+
+.connectorSection,
+.connectedSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0 0.5rem;
+}
+
+.sectionHeader {
+  font-size: 1rem;
+  line-height: 1.5rem;
+  border-bottom-width: 1px;
+  border-color: var(--subtlest-border-color);
+  border-bottom-style: solid;
+  padding-bottom: 0.5rem;
+}
+
+.pageTitle {
+  position: absolute;
+  top: 0.25rem;
+  right: 0.25rem;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--primary-color, #333);
+
+  border: 1px solid var(--subtlest-border-color);
+  border-radius: calc(var(--spacing) * 1.5);
+  padding: 0rem 0.5rem;
+  background-color: var(--bg-base-color);
+}
+
+.integrations {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.sectionTitle {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  margin-bottom: 1rem;
+}
+
+.cardsGrid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 600px) {
+  .cardsGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.card {
+  display: flex;
+  align-items: center;
+  background: var(--white);
+  border: 1px solid var(--subtlest-border-color);
+  border-radius: 12px;
+  padding: 1rem 1.2rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: box-shadow 0.2s ease;
+}
+
+.card:hover {
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+.cardIcon {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 1.2rem;
+  margin-right: 1rem;
+  flex-shrink: 0;
+}
+
+.cardContent {
+  flex: 1;
+}
+
+.cardTitle {
+  font-size: 1.1rem;
+  margin: 0;
+  font-weight: 600;
+}
+
+.cardDesc {
+  margin: 0.2rem 0 0;
+  color: var(--text-subtle-color, #555);
+  font-size: 0.9rem;
+}
+
+.cardAction {
+  margin-left: 1rem;
+}
+
+.connectButton {
+  color: #fff;
+  font-weight: 500;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    transform 0.1s ease;
+}
+
+.connectButton[data-color="pinterest"] {
+  background-color: #e60023;
+}
+
+.connectButton[data-color="instagram"] {
+  background-color: #e4405f;
+}
+
+.connectButton:hover {
+  transform: translateY(-1px);
+  opacity: 0.9;
+}
+
+.connected {
+  color: #16a34a;
+  font-weight: 600;
+}
+
+.note {
+  color: var(--foreground-dim-color);
+  font-size: 0.75rem;
+}
+
+@media (min-width: 768px) {
+  .container {
+    padding: 0.5rem;
+  }
+
+  .workPanel {
+    border: 1px solid var(--subtlest-border-color);
+    border-radius: calc(var(--spacing) * 1.5);
+  }
+}
+
+@media (min-width: 1024px) {
+  .connectorSection,
+  .connectedSection {
+    padding: 0 5rem;
+  }
+}

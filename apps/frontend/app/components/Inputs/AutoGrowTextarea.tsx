@@ -6,6 +6,7 @@ type AutoGrowTextAreaProps = {
   placeholder?: string;
   className?: string;
   disabled?: boolean;
+  maxLength?: number;
 };
 
 function AutoGrowTextArea({
@@ -14,6 +15,7 @@ function AutoGrowTextArea({
   placeholder,
   className,
   disabled = false,
+  maxLength,
 }: AutoGrowTextAreaProps) {
   const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
 
@@ -53,6 +55,7 @@ function AutoGrowTextArea({
       value={value}
       disabled={disabled}
       onChange={(e) => onChange(e.target.value)}
+      maxLength={maxLength}
       placeholder={placeholder}
     />
   );

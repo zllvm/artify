@@ -8,7 +8,7 @@
     "dev": "dotenvx run -f .env.local -- tsx watch src/server.ts",
     "dev:max": "dotenvx run -f .env.max -- tsx watch src/server.ts",
     "build": "tsc",
-    "start": "node dist/server.js",
+    "start": "dotenvx run -f .env.max -- node dist/server.js",
     "lint": "eslint .",
     "type-check": "tsc --noEmit",
     "debug": "node --inspect-brk=9229 --import tsx src/server.ts",

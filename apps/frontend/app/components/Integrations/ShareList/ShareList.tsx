@@ -6,13 +6,13 @@ import { ShareAdapter } from "@/adapters/ShareAdapter";
 
 import styles from "./ShareList.module.css";
 
-import type { Share } from "@artify/shared";
+import type { AnyShare } from "@artify/shared";
 
 type ShareListProps = {
   paintingId: string;
   refreshKey?: number;
-  activeShare?: Share | null;
-  onSelectShare?: (share: Share) => void;
+  activeShare?: AnyShare | null;
+  onSelectShare?: (share: AnyShare) => void;
 };
 
 function formatDate(date?: string | Date) {
@@ -44,7 +44,7 @@ export default function ShareList({
   onSelectShare,
   activeShare,
 }: ShareListProps) {
-  const [shares, setShares] = useState<Share[]>([]);
+  const [shares, setShares] = useState<AnyShare[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 

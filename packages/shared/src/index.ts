@@ -1,3 +1,5 @@
 export * from "./types.js";
 export * from "./utils/common.js";
+export * from "./utils/format.js";
+export * from "./utils/dateUtils.js";
 export * from "./utils/imageUtils.js";

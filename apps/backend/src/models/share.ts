@@ -1,50 +1,84 @@
-import { Platform, Share } from '@artify/shared';
+import {
+  AnyShare,
+  MetadataMap,
+  Platform,
+  Share,
+  ShareFor,
+} from "@artify/shared";
+
+type CreateShareInput<P extends Platform> = Omit<
+  ShareFor<P>,
+  "id" | "createdAt" | "updatedAt" | "publishDate"
+>;
+
+type UpdateShareInput<P extends Platform> = Partial<
+  Omit<ShareFor<P>, "id" | "createdAt" | "updatedAt">
+>;
 
 export class ShareModel {
-  private static shares: Share[] = [];
+  private static shares: Array<AnyShare> = [];
 
-  static create(data: Omit<Share, "id" | "createdAt" | "updatedAt">): Share {
+  static create<P extends Platform>(data: CreateShareInput<P>): ShareFor<P> {
     const now = new Date();
-    const share: Share = {
+
+    const share: ShareFor<P> = {
       ...data,
       id: crypto.randomUUID(),
       createdAt: now,
       updatedAt: now,
       publishDate: data.isPublished ? now : undefined,
     };
+
     this.shares.push(share);
     return share;
   }
 
-  static findById(id: string): Share | undefined {
-    return this.shares.find((s) => s.id === id);
+  // --- findById ---
+  static findById<P extends Platform>(
+    id: string,
+    platform: P
+  ): Share<MetadataMap[P]> | undefined;
+  static findById(id: string): AnyShare | undefined;
+
+  static findById<P extends Platform>(
+    id: string,
+    platform?: P
+  ): AnyShare | undefined {
+    const share = this.shares.find(
+      (s) => s.id === id && (!platform || s.platform === platform)
+    );
+    return share;
   }
 
-  static findByPaintingId(paintingId: string): Share[] {
-    return this.shares.filter((s) => s.paintingId === paintingId);
-  }
-
-  static findByPlatform(platform: Platform): Share[] {
-    return this.shares.filter((s) => s.platform === platform);
-  }
-
-  static findByPaintingAndPlatform(
+  static findByPaintingId<P extends Platform>(
     paintingId: string,
-    platform: Platform
-  ): Share[] {
+    platform: P
+  ): Share<MetadataMap[P]>[];
+
+  static findByPaintingId(paintingId: string): Array<AnyShare>;
+
+  static findByPaintingId<P extends Platform>(
+    paintingId: string,
+    platform?: P
+  ): Array<AnyShare> {
     return this.shares.filter(
-      (s) => s.paintingId === paintingId && s.platform === platform
+      (s) =>
+        s.paintingId === paintingId && (!platform || s.platform === platform)
     );
   }
 
-  static findAll(): Share[] {
-    return [...this.shares];
+  static getByPlatform<P extends Platform>(platform: P): ShareFor<P>[] {
+    return this.shares.filter((s): s is ShareFor<P> => s.platform === platform);
   }
 
-  static update(
+  static findAll(): Array<AnyShare> {
+    return this.shares;
+  }
+
+  static update<P extends Platform>(
     id: string,
-    updates: Partial<Omit<Share, "id" | "createdAt">>
-  ): Share | undefined {
+    updates: UpdateShareInput<P>
+  ): Share<MetadataMap[P]> | undefined {
     const share = this.findById(id);
     if (!share) return undefined;
 
@@ -68,11 +102,18 @@ export class ShareModel {
       }
     }
 
+    if (typeof updates.artify === "object" && updates.artify !== null) {
+      share.artify = {
+        ...share.artify,
+        ...updates.artify,
+      };
+    }
+
     Object.assign(share, updates, { updatedAt: now });
-    return share;
+    return share as Share<MetadataMap[P]>;
   }
 
-  static publish(id: string): Share | undefined {
+  static publish(id: string): AnyShare | undefined {
     const share = this.findById(id);
     if (!share) return undefined;
     share.isPublished = true;
@@ -81,7 +122,7 @@ export class ShareModel {
     return share;
   }
 
-  static unpublish(id: string): Share | undefined {
+  static unpublish(id: string): AnyShare | undefined {
     const share = this.findById(id);
     if (!share) return undefined;
     if (share.platform !== Platform.Artify) {

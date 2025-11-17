@@ -25,6 +25,7 @@
   --text-tip-color: #959594;
   /* --foreground-color: #464848; */
   --accent-color: #5ca9a0;
+  --accent-color2: #395d61;
 
   --light-foreground-color: var(--p-cyan-200);
   --foreground-color: hsl(var(--p-cyan-200));
@@ -106,7 +107,8 @@ body {
     "Helvetica Neue",
     Arial,
     sans-serif;
-  background-color: var(--black);
+  background-color: black;
+  /* background-color: var(--black); */
 
   color: var(--text-color);
   font-size: 1rem;
@@ -202,36 +204,60 @@ textarea.input {
   box-shadow: 0 0 0 1px var(--bg-subtle-color);
 }
 
-/* === Modal === */
+/* === Overlay: viewport container === */
 .modalOverlay {
   position: fixed;
   inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 100vw;
   height: 100vh;
-  background: rgba(0, 0, 0, 0.4);
+  height: 100svh;
+  height: -webkit-fill-available;
+
+  background: rgba(0, 0, 0, 0.45);
   backdrop-filter: blur(2px);
-  z-index: 1000;
+
+  overflow-y: auto;
+  z-index: 2000;
 }
 
+/* === Modal box === */
 .modal {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  width: 90vw;
-
-  /* height: 200px; */
-  transform: translate(-50%, -50%);
-  background: #fff;
-  border-radius: 1rem;
-  box-shadow: 0 4px 32px rgba(0, 0, 0, 0.18);
-  padding: 1rem;
-  z-index: 1001;
-  /* min-width: 500px; */
+  position: relative;
   display: flex;
   flex-direction: column;
-  align-items: stretch;
-  justify-content: stretch;
-  gap: 1rem;
+  background: #fff;
+  border-radius: 1rem;
+  box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  padding: 1rem;
+  animation: modalIn 0.3s ease-out;
+  z-index: 2001;
+  max-height: 80vh;
+  max-height: 80svh;
+  /* max-height: -webkit-fill-available; */
+
+  /* width: 80vw; */
+  /* max-width: 300px; */
+  /* width: 90vw;
+  max-width: 50rem; */
+}
+
+.modal__content {
+  overflow-y: auto;
+  /* max-height: 80vh; */
+
+  flex: 1;
+}
+
+.modal--dark {
+  background: transparent;
+}
+
+.modal--slim {
+  padding: 0rem;
 }
 
 /* .modal textarea {
@@ -365,8 +391,35 @@ textarea.input {
 }
 
 .btn--ai {
-  background: var(--accent-color);
-  color: #fff;
+  color: var(--foreground-color);
+}
+
+.btn--ai:disabled {
+  opacity: 0.8;
+}
+
+.btn--ai.loading {
+  background-color: var(--black);
+  color: var(--white);
+}
+
+.btn--ai.loading .icon {
+  color: #fafc71ff;
+  position: relative;
+  transition: color 0.3s ease;
+  animation: pulseLamp 2s ease-in-out infinite;
+}
+
+@keyframes pulseLamp {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.65;
+    transform: scale(1.02);
+  }
 }
 
 .btn--act {
@@ -423,6 +476,53 @@ textarea.input {
   scrollbar-color: var(--scrollbar-color, initial)
     var(--scrollbar-track, transparent);
   scrollbar-gutter: unset;
+}
+
+.scroll::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.scroll::-webkit-scrollbar-track {
+  background: var(--scrollbar-track, transparent);
+}
+
+.scroll::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-color, rgba(0, 0, 0, 0.3));
+  border-radius: 8px;
+}
+
+.scroll--dark {
+  /* Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb-dark, #555)
+    var(--scrollbar-track-dark, #1a1a1a);
+}
+
+/* Chrome, Edge, Safari */
+.scroll--dark::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.scroll--dark::-webkit-scrollbar-track {
+  background: var(--scrollbar-track-dark, #1a1a1a);
+  border-radius: 8px;
+}
+
+.scroll--dark::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb-dark, #4a4d52);
+  border-radius: 8px;
+  transition: background 0.2s ease;
+}
+
+.scroll--dark::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-dark-hover, #6c6f74);
+}
+
+/* Optional corner styling */
+.scroll--dark::-webkit-scrollbar-corner {
+  background: transparent;
 }
 
 @media (min-width: 768px) {

@@ -8,6 +8,11 @@ variable "app_name" {
   type        = string
 }
 
+variable app_version {
+  description = "Application version"
+  type        = string
+}
+
 variable "env" {
   description = "Application env"
   type        = string
@@ -61,5 +66,28 @@ variable "domain_name" {
 variable "health_endpoint" {
   description = "Health check endpoint"
   type        = string
-  default     = "/health"
+  default     = "/api/health"
+}
+
+variable "public_sentry_dsn" {
+  description = "Public Sentry DSN for frontend error tracking"
+  type        = string
+}
+
+variable "sentry_auth_token" {
+  description = "Sentry Auth Token for uploading source maps"
+  type        = string
+  sensitive   = true
+}
+
+variable "service_client_id" {
+  description = "Service Client ID for service-to-service authentication"
+  type        = string
+  sensitive   = true
+}
+
+variable "service_client_secret" {
+  description = "Service Client Secret for service-to-service authentication"
+  type        = string
+  sensitive   = true
 }

@@ -1,10 +1,8 @@
-"use client";
-
 import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
 
-import { useAuth } from "@/hooks";
+// import { useRouter } from "next/navigation";
+// import { useEffect } from "react";
+// import { useAuth } from "@/hooks";
 import { faXmark } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
@@ -15,16 +13,9 @@ type LoginFormProps = {
 };
 
 export default function LoginForm({ onClose }: LoginFormProps) {
-  const { googleLogin, loading, user } = useAuth();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (user) router.push("/");
-  }, [user, router]);
-
-  if (loading) {
-    return <div className={styles.loading}>Loading...</div>;
-  }
+  const handleGoogleLogin = () => {
+    window.location.href = "/backend/auth/google";
+  };
 
   return (
     <div className={styles.container}>
@@ -48,7 +39,7 @@ export default function LoginForm({ onClose }: LoginFormProps) {
         </div>
         <button
           className={`btn btn--google ${styles.loginBtn} noselect`}
-          onClick={googleLogin}
+          onClick={handleGoogleLogin}
         >
           <img
             src="/icons/google.svg"

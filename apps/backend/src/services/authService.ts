@@ -1,10 +1,12 @@
-import jwt from 'jsonwebtoken';
-import passport from 'passport';
-import { Strategy as GoogleStrategy, StrategyOptionsWithRequest } from 'passport-google-oauth20';
+import passport from "passport";
+import {
+  Strategy as GoogleStrategy,
+  StrategyOptionsWithRequest,
+} from "passport-google-oauth20";
 
-import { IUser } from '@artify/shared';
-
-import { UserRepository } from '../repositories/userRepository.js';
+import { IUser } from "../models/user.js";
+import { UserRepository } from "../repositories/userRepository.js";
+import JwtService from "./jwtService.js";
 
 import type { Request } from "express";
 import type {
@@ -18,9 +20,9 @@ export const configureGoogleStrategy = (
     clientId: string;
     clientSecret: string;
     callbackUrl: string;
-    jwtPrivateKey: string;
   },
-  userRepo: UserRepository
+  userRepo: UserRepository,
+  jwtService: JwtService
 ) => {
   const options: StrategyOptionsWithRequest = {
     clientID: config.clientId,
@@ -42,12 +44,10 @@ export const configureGoogleStrategy = (
       void (() => {
         try {
           const user = userRepo.findOrCreateFromGoogle(profile);
-          const token = jwt.sign(
-            { sub: user.id, email: user.email, name: user.displayName },
-            config.jwtPrivateKey,
-            { algorithm: "RS256", expiresIn: "1h" }
-          );
+          const { token, expireAt } = jwtService.generateJwt({ id: user.id });
           user.token = token;
+          user.tokenExpiresAt = expireAt;
+          user.isAuthenticated = true;
           done(null, user);
         } catch (err) {
           done(err as Error);
@@ -65,7 +65,7 @@ export const configureGoogleStrategy = (
   passport.deserializeUser((id: string, done) => {
     void (() => {
       try {
-        const user = userRepo.findById(id);
+        const user = userRepo.get(id);
         done(null, user);
       } catch (err) {
         done(err as Error);

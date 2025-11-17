@@ -1,0 +1,312 @@
+/* .toolboxWrapper {
+  position: relative;
+  container-name: toolbox;
+  container-type: inline-size;
+} */
+
+.toolbox {
+  --tb-bg: #ffffff;
+  --tb-border: #2c3e50;
+  --tb-text: #2c3e50;
+  --tb-hover-bg: #2c3e50;
+  --tb-hover-text: #ffffff;
+
+  position: absolute;
+  display: flex;
+  gap: 0.25rem;
+  justify-content: end;
+  z-index: 1002;
+  width: 100%;
+  container-type: inline-size;
+}
+
+/* 🔆 Light  */
+.toolboxLight {
+  --tb-bg: #ffffff;
+  --tb-border: #2c3e50;
+  --tb-text: #2c3e50;
+  --tb-hover-bg: #2c3e50;
+  --tb-hover-text: #ffffff;
+}
+
+/* 🌙 Dark */
+.toolboxDark {
+  --tb-bg: rgba(255, 255, 255, 0.08);
+  --tb-border: #d6d6d6;
+  --tb-text: #d6d6d6;
+  --tb-hover-bg: #ffd166;
+  --tb-hover-text: #111214;
+}
+
+/* .toolbox {
+  position: absolute;
+  gap: 0.25rem;
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  justify-content: end;
+  z-index: 1002;
+  container-type: inline-size;
+} */
+
+/* .toolbox button {
+  font-family: var(--font-form-title);
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 2px solid #2c3e50;
+  color: #2c3e50;
+  font-size: 28px;
+  font-weight: 300;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease,
+    border-color 0.25s ease,
+    transform 0.2s ease,
+    box-shadow 0.25s ease;
+} */
+
+.toolbox button {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--tb-bg);
+  border: 2px solid var(--tb-border);
+  color: var(--tb-text);
+  font-size: 1.75rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease,
+    border-color 0.25s ease,
+    transform 0.2s ease,
+    box-shadow 0.25s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.toolbox button:hover {
+  background: var(--tb-hover-bg);
+  color: var(--tb-hover-text);
+  transform: scale(1.08);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+}
+
+/* .toolbox button:hover {
+  transform: scale(1.08);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+} */
+
+.toolbox .viewButton {
+  border-color: #2980b9;
+  color: #2980b9;
+}
+
+.toolbox .viewButton:hover,
+.toolbox .option:hover .viewButton {
+  background: #2980b9;
+  color: #fff;
+}
+
+.toolbox .closeButton {
+  border-color: #7f8c8d;
+  color: #7f8c8d;
+}
+
+.toolbox .closeButton:hover {
+  background: #7f8c8d;
+  color: #fff;
+}
+
+.toolbox .icon {
+  height: 20px;
+  width: 20px;
+}
+
+.closeButton {
+}
+
+.menuWrapper {
+  position: relative;
+  display: none;
+}
+
+.menuWrapper[data-empty="false"] {
+  display: flex;
+}
+
+.menuButton {
+  border: 2px solid #7f8c8d;
+  background: #fff;
+  color: #7f8c8d;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease,
+    border-color 0.25s ease,
+    transform 0.2s ease;
+  cursor: pointer;
+}
+
+.menuButton:hover {
+  background: #7f8c8d;
+  color: #fff;
+  transform: scale(1.08);
+}
+
+.menuButton svg {
+  pointer-events: none;
+}
+
+.dropdown {
+  position: absolute;
+  display: none;
+  flex-direction: column;
+  top: 28px;
+  right: 0;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 0.25rem 0.25rem;
+  z-index: 20;
+  animation: fadeIn 0.2s ease;
+  /* min-width: 100px; */
+  gap: 0.25rem;
+}
+
+.menuWrapper.open .dropdown {
+  display: flex;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.option {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: start;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.deleteOption {
+  background-color: blue;
+  border: none;
+  color: #e74c3c;
+  cursor: pointer;
+  font-size: 14px;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.toolbox .deleteButton {
+  border-color: #e74c3c;
+  color: #e74c3c;
+}
+
+.toolbox .option:hover .deleteButton {
+  background: #e74c3c;
+  color: #fff;
+}
+
+.toolbox .saveButton {
+  border-color: #27ae60;
+  color: #27ae60;
+}
+.toolbox .saveButton:hover,
+.toolbox .option:hover .saveButton {
+  background: #27ae60;
+  color: #fff;
+}
+
+.toolbox .publishButton {
+  border-color: #f39c12;
+  color: #f39c12;
+}
+
+.toolbox .publishButton:hover,
+.toolbox .option:hover .publishButton {
+  background: #f39c12;
+  color: #fff;
+}
+
+.toolbox .unpublishButton {
+  border-color: #8e44ad;
+  color: #8e44ad;
+}
+
+.toolbox .unpublishButton:hover,
+.toolbox .option:hover .unpublishButton {
+  background: #8e44ad;
+  color: #fff;
+}
+
+.toolbox .previewButton {
+  border-color: #6c5ce7;
+  color: #6c5ce7;
+}
+
+.toolbox .previewButton:hover,
+.toolbox .option:hover .previewButton {
+  background: #6c5ce7;
+  color: #fff;
+}
+
+.toolbox.compact > button.foldable:not(.menuButton) {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .toolbox.compact > button.foldable:not(.menuButton) {
+    display: flex;
+  }
+
+  .toolbox.compact .dropdown .option:not(.default) {
+    display: none;
+  }
+}
+
+@container (width <= 510px) {
+  .toolbox.compact > button.foldable:not(.menuButton) {
+    display: none;
+  }
+
+  .toolbox.compact .dropdown .option:not(.default) {
+    display: flex;
+  }
+}
+
+@container (width > 510px) {
+  .toolbox.compact > button.foldable:not(.menuButton) {
+    display: flex;
+  }
+
+  .toolbox.compact .dropdown .option:not(.default) {
+    display: none;
+  }
+}

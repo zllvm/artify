@@ -59,6 +59,12 @@ export default function AutoGrowTextarea({
   }
 
   return (
-    <textarea ref={ref} className="input" {...props} onInput={handleInput} />
+    <textarea
+      ref={ref}
+      spellCheck={false}
+      className="input"
+      {...props}
+      onInput={handleInput}
+    />
   );
 }

@@ -1,75 +1,21 @@
-import { useCallback, useState } from "react";
+import { headers } from "next/headers";
 
-import { useIsMobile } from "@/hooks";
-import { isInteractiveClick } from "@/utils/dom";
-import { faChevronLeft, faXmark } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-
-import Sidebar from "../Sidebar/Sidebar";
+import ClientLayoutShell from "./ClientLayoutShell";
 import styles from "./Layout.module.css";
+import SidebarContainer from "./SidebarContainer";
 
 type LayoutProps = {
   children: React.ReactNode;
 };
 
-export default function Layout({ children }: LayoutProps) {
-  const [collapsedDesktop, setCollapsedDesktop] = useState(false);
-  const [collapsedMobile, setCollapsedMobile] = useState(true);
-
-  const isMobile = useIsMobile();
-
-  const openSidebar = useCallback(
-    (e: React.MouseEvent<HTMLElement>) => {
-      if (isInteractiveClick(e)) return;
-      if (isMobile) {
-        if (collapsedMobile) setCollapsedMobile(false);
-      } else {
-        if (collapsedDesktop) setCollapsedDesktop(false);
-      }
-    },
-    [isMobile, collapsedMobile, collapsedDesktop]
-  );
-
-  const closeSidebar = useCallback(() => {
-    if (isMobile) {
-      if (!collapsedMobile) setCollapsedMobile(true);
-    } else {
-      if (!collapsedDesktop) setCollapsedDesktop(true);
-    }
-  }, [isMobile, collapsedDesktop, collapsedMobile]);
-
-  const showCollapseButton =
-    (isMobile && !collapsedMobile) || (!isMobile && !collapsedDesktop);
+export default async function Layout({ children }: LayoutProps) {
+  const hdrs = await headers();
+  const pathname = hdrs.get("x-current-path") ?? "/";
 
   return (
-    <div
-      className={[
-        styles.container,
-        collapsedDesktop ? styles.collapsedDesktop : "",
-        collapsedMobile ? styles.collapsedMobile : "",
-      ].join(" ")}
-    >
-      <aside className={`${styles.sidebar} `} onClick={openSidebar}>
-        <Sidebar />
-        {showCollapseButton && (
-          <button
-            className={`${styles.collapseBtn}`}
-            onClick={closeSidebar}
-            aria-label={isMobile ? "Close sidebar" : "Collapse sidebar"}
-          >
-            <FontAwesomeIcon icon={isMobile ? faXmark : faChevronLeft} />
-          </button>
-        )}
-      </aside>
-
-      {/* overlay (for mobile only, shown via CSS) */}
-      {isMobile && !collapsedMobile && (
-        <div
-          className={styles.overlay}
-          onClick={() => setCollapsedMobile(true)}
-        />
-      )}
-      <main className={styles.main}>{children}</main>
+    <div className={styles.container}>
+      <SidebarContainer initialPath={pathname} />
+      <ClientLayoutShell>{children}</ClientLayoutShell>
     </div>
   );
 }

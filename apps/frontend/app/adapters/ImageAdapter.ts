@@ -13,7 +13,7 @@ export type ProxyImageResponse = {
 
 export class ImageAdapter {
   static async fetchProxyImage(url: string): Promise<ProxyImageResponse> {
-    const endpoint = `${API_URL}/api/paintings/proxy/image?url=${encodeURIComponent(
+    const endpoint = `${API_URL}/paintings/proxy/image?url=${encodeURIComponent(
       url
     )}`;
 

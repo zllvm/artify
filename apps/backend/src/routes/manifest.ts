@@ -1,9 +1,9 @@
-import { Request, Response, Router } from 'express';
-import { z } from 'zod';
+import { Request, Response, Router } from "express";
+import { z } from "zod";
 
-import { ManifestModel } from '../models/manifest.js';
-import { PaintingModel } from '../models/painting.js';
-import { logger } from '../utils/logger.js';
+import { ManifestModel } from "../models/manifest.js";
+import { PaintingModel } from "../models/painting.js";
+import { logger } from "../utils/logger/logger.js";
 
 import type { ApiResponse, Manifest } from "@artify/shared";
 

@@ -2,120 +2,83 @@
   display: grid;
   grid-template-areas: "sidebar main";
   grid-template-columns: 48px minmax(10rem, 1fr);
-  /* height: 100vh;
-  max-height: 100vh;
-  width: 100%; */
-  /* position: relative; */
-  /* overflow: hidden; */
 
   height: 100vh;
   height: 100svh;
   height: -webkit-fill-available;
 
   overflow: hidden;
-
-  /* background-color: #587695ff; */
 }
 
 .main {
   grid-area: main;
-
   display: flex;
-  /* padding: 1rem; */
   min-height: 0;
   flex: 1;
-  /* min-height: 0; */
   background-color: var(--black);
-  /* background-color: #955858; */
-  /* max-width: 2200px; */
-  /* overflow: hidden; */
-  /* margin: 0 auto; */
 }
 
-.sidebar {
-  grid-area: sidebar;
-  position: relative;
-  /* position: fixed; */
-  /* inset: 0; */
-  /* height: 100%; */
-  /* width: 48px; */
-  background-color: var(--sidebar-bg);
-  color: var(--sidebar-text);
-  display: flex;
-  flex-direction: column;
-  transition: transform 0.3s ease, width 0.3s ease;
-  z-index: 1000;
-  cursor: e-resize;
-}
-
-.overlay {
+/* === Overlay: viewport container === */
+.modalOverlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.4);
-  opacity: 1;
-  pointer-events: none;
-  transition: opacity 0.3s ease;
-  z-index: 900;
-}
-
-.collapseBtn {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  background: none;
-  border: none;
-  color: #ccc;
-  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1200;
+  width: 100vw;
+  height: 100vh;
+
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(2px);
+
+  overflow-y: auto;
+  z-index: 2000;
+
+  padding-left: 3rem;
 }
 
-/* ---------------- MOBILE ---------------- */
-@media (max-width: 767px) {
-  /* .container.collapsedMobile .sidebar {
-    width: 48px;
-  } */
+/* === Modal box === */
+.modal {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border-radius: 1rem;
+  box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  padding: 1rem;
+  animation: modalIn 0.3s ease-out;
+  z-index: 2001;
+  width: 80vw;
+  /* max-width: 300px; */
+  /* width: 90vw;
+  max-width: 50rem; */
+}
 
-  .container:not(.collapsedMobile) .sidebar {
-    width: 220px;
-    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
-  }
+.modal__content {
+  overflow-y: auto;
+  max-height: 80vh;
+  flex: 1;
+  min-height: 0;
+}
 
-  .container:not(.collapsedMobile) .overlay {
-    opacity: 1;
-    pointer-events: all;
-  }
+.modal--dark {
+  background: transparent;
+}
+
+.modal--slim {
+  padding: 0rem;
 }
 
 /* ---------------- DESKTOP ---------------- */
 @media (min-width: 768px) {
   .container {
     grid-template-areas: "sidebar main";
-    grid-template-columns: 220px 1fr;
+    grid-template-columns: auto 1fr;
   }
 
-  /* .main {
-    padding: 0.5rem;
-  } */
-
-  .sidebar {
-    position: relative;
-    width: 220px;
-    transform: none;
-    cursor: default;
-  }
-
-  .container.collapsedDesktop {
-    grid-template-columns: 48px 1fr;
-  }
-  .container.collapsedDesktop .sidebar {
-    width: 48px;
-    cursor: e-resize;
-  }
-
-  .overlay {
-    display: none;
+  .modal {
+    min-width: 500px;
+    width: auto;
   }
 }

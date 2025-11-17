@@ -7,9 +7,10 @@
     "dev": "NODE_OPTIONS='--inspect' next dev -H 0.0.0.0 --turbopack",
     "dev:max": "NODE_OPTIONS='--inspect' dotenv -e .env.max -- next dev -H 0.0.0.0 --turbopack",
     "build": "next build --turbopack",
+    "build:max": "dotenvx run -f .env.max -- next build --turbopack",
     "lint": "eslint .",
     "start": "next start",
-    "prod": "next start"
+    "prod": "pnpm run build:max && next start"
   },
   "dependencies": {
     "@artify/shared": "workspace:*",
@@ -18,10 +19,15 @@
     "@fortawesome/free-regular-svg-icons": "^7.1.0",
     "@fortawesome/free-solid-svg-icons": "^7.1.0",
     "@fortawesome/react-fontawesome": "^3.1.0",
+    "@reduxjs/toolkit": "^2.10.1",
+    "@sentry/nextjs": "^10.22.0",
     "jose": "^6.1.0",
     "next": "15.5.4",
     "react": "19.1.0",
-    "react-dom": "19.1.0"
+    "react-dom": "19.1.0",
+    "react-redux": "^9.2.0",
+    "swr": "^2.3.6",
+    "zod": "^4.1.12"
   },
   "devDependencies": {
     "@types/node": "^20",

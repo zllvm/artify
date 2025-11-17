@@ -109,7 +109,29 @@ resource "aws_ecs_task_definition" "main" {
           name  = "NEXT_TELEMETRY_DISABLED"
           value = "1"
         },
-      ]
+        {
+          name  = "NEXT_PUBLIC_SENTRY_DSN"
+          value = var.public_sentry_dsn
+        },
+        {
+          name  = "APP_VERSION"
+          value = var.app_version
+        }
+      ],
+      secrets = [
+        {
+          name  = "SENTRY_AUTH_TOKEN"
+          value = var.sentry_auth_token
+        },
+        {
+          name  = "SERVICE_CLIENT_ID"
+          value = var.service_client_id
+        },
+        {
+          name  = "SERVICE_CLIENT_SECRET"
+          value = var.service_client_secret
+        },
+      ],
       logConfiguration = {
         logDriver = "awslogs"
         options = {

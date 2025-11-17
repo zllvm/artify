@@ -112,6 +112,15 @@ resource "aws_ecs_task_definition" "main" {
         {
           name  = "FRONTEND_URL"
           value = var.frontend_url
+        },
+        {
+          name  = "APP_VERSION"
+          value = var.app_version
+        }
+        ,
+        {
+          name  = "DOMAIN_NAME"
+          value = var.domain_name
         }
       ]
       secrets = [

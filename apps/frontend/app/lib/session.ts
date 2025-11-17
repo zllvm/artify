@@ -5,16 +5,23 @@ import { importSPKI, JWTPayload, jwtVerify } from "jose";
 import { SessionPayload } from "@/lib/definitions";
 import { epochSecondsToDate } from "@/utils/dateUtils";
 
-if (!process.env.JWT_PUBLIC_KEY) {
-  throw new Error("JWT_PUBLIC_KEY is not defined in environment variables");
-}
-
-const spki = Buffer.from(process.env.JWT_PUBLIC_KEY, "base64").toString(
-  "utf-8"
-);
-
 const JWT_ALGORITHM = "RS256";
-const publicKey = await importSPKI(spki, JWT_ALGORITHM);
+let publicKeyCache: Awaited<ReturnType<typeof importSPKI>> | null = null;
+
+async function getPublicKey() {
+  if (publicKeyCache) return publicKeyCache;
+
+  if (!process.env.JWT_PUBLIC_KEY) {
+    throw new Error("JWT_PUBLIC_KEY is not defined in environment variables");
+  }
+
+  const spki = Buffer.from(process.env.JWT_PUBLIC_KEY, "base64").toString(
+    "utf-8"
+  );
+
+  publicKeyCache = await importSPKI(spki, JWT_ALGORITHM);
+  return publicKeyCache;
+}
 
 export async function decrypt(
   session: string | undefined = ""
@@ -22,6 +29,7 @@ export async function decrypt(
   try {
     if (!session) return null;
 
+    const publicKey = await getPublicKey();
     const { payload } = await jwtVerify<JWTPayload>(session, publicKey, {
       algorithms: [JWT_ALGORITHM],
     });

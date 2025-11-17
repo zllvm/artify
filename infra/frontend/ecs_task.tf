@@ -123,12 +123,12 @@ resource "aws_ecs_task_definition" "main" {
           value = var.app_version
         }
       ],
-      # secrets = [
-      #   for key in local.secret_keys : {
-      #     name      = key
-      #     valueFrom = "${module.json_secret.secret_arn}:${key}::"
-      #   }
-      # ]
+      secrets = [
+        for key in local.secret_keys : {
+          name      = key
+          valueFrom = "${module.json_secret.secret_arn}:${key}::"
+        }
+      ]
       logConfiguration = {
         logDriver = "awslogs"
         options = {

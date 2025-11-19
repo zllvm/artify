@@ -57,7 +57,6 @@ jobs:
             -var="app_version=${{ inputs.version }}" \
             -var="env=${{ inputs.environment }}" \
             -var="backend_url=${{ vars.BACKEND_URL }}" \
-            -var="backend_api_url=${{ vars.BACKEND_API_URL }}" \
             -var="container_image=${{ inputs.container_image }}" \
             -var="jwt_public_key=${{ vars.JWT_PUBLIC_KEY }}" \
             -var="domain_name=${{ vars.DOMAIN_NAME }}" \

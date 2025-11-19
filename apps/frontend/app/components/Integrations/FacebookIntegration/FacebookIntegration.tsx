@@ -1,7 +1,8 @@
+"use client";
+
 import { useEffect, useState } from "react";
 
 import { ShareAdapter } from "@/adapters/ShareAdapter";
-import { FRONTEND_URL } from "@/config";
 import { useAuth } from "@/hooks";
 import { formatDateTime } from "@/utils/dateUtils";
 import { AnyShare, Platform } from "@artify/shared";
@@ -144,7 +145,7 @@ export default function FacebookIntegration({
     setLoading(true);
 
     try {
-      const url = `${FRONTEND_URL}/art/${selectedArtifyShare}`;
+      const url = `${window.location.origin}/art/${selectedArtifyShare}`;
       // return;
       if (action === "publish") {
         window.open(

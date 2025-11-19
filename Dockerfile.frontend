@@ -1,8 +1,15 @@
 # --- Build stage ---
-FROM node:22-slim AS builder
+FROM node:24-slim AS builder
 WORKDIR /app
 
+# Update system packages to patch vulnerabilities
+RUN apt-get update && apt-get upgrade -y && apt-get clean
+
 RUN corepack enable && corepack prepare pnpm@latest --activate
+
+# Build-time environment variables for Next.js config
+ARG NEXT_PUBLIC_BACKEND_URL
+ENV NEXT_PUBLIC_BACKEND_URL=${NEXT_PUBLIC_BACKEND_URL}
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY tsconfig*.json ./

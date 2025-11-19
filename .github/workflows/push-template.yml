@@ -57,14 +57,14 @@ jobs:
       - name: Build Docker image (frontend)
         if: inputs.app == 'frontend'
         run: |
-          docker build -t ${{ env.APP_NAME }} -f ${{ inputs.dockerfile }} .
+          docker build \
+          --build-arg NEXT_PUBLIC_BACKEND_URL=${{ vars.BACKEND_URL }} \
+          -t ${{ env.APP_NAME }} -f ${{ inputs.dockerfile }} .
 
       - name: Build Docker image (backend)
         if: inputs.app == 'backend'
         run: |
-          docker build \
-          --build-arg NEXT_PUBLIC_BACKEND_URL=${{ vars.BACKEND_URL }} \
-          -t ${{ env.APP_NAME }} -f ${{ inputs.dockerfile }} .
+          docker build -t ${{ env.APP_NAME }} -f ${{ inputs.dockerfile }} .
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v5

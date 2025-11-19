@@ -69,8 +69,8 @@ variable "health_endpoint" {
   default     = "/api/health"
 }
 
-variable "public_sentry_dsn" {
-  description = "Public Sentry DSN for frontend error tracking"
+variable "sentry_dsn" {
+  description = "Sentry DSN for frontend error tracking"
   type        = string
 }
 

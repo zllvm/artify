@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from "next/types";
-import "./icons/fontawesome";
 import "./styles/global.css";
 
 import {
@@ -13,6 +12,7 @@ const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
   display: "swap",
+  preload: true,
 });
 
 // const geistMono = Geist_Mono({
@@ -26,22 +26,22 @@ const montserrat = Montserrat({
   weight: ["500", "600"],
   variable: "--font-header",
   display: "swap",
-  preload: false,
+  preload: true,
 });
 
 const quicksand = Josefin_Sans({
   subsets: ["latin"],
   weight: ["400", "600", "700"],
   variable: "--font-logo",
-  display: "swap",
-  preload: false,
+  display: "optional",
+  preload: true,
 });
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
   variable: "--font-form-title",
-  display: "swap",
+  display: "optional",
   preload: false,
 });
 

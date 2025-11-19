@@ -99,10 +99,6 @@ resource "aws_ecs_task_definition" "main" {
           value = tostring(var.container_port)
         },
         {
-          name  = "NEXT_PUBLIC_BACKEND_URL"
-          value = var.backend_url
-        },
-        {
           name  = "JWT_PUBLIC_KEY"
           value = var.jwt_public_key
         },
@@ -115,8 +111,8 @@ resource "aws_ecs_task_definition" "main" {
           value = "1"
         },
         {
-          name  = "NEXT_PUBLIC_SENTRY_DSN"
-          value = var.public_sentry_dsn
+          name  = "SENTRY_DSN"
+          value = var.sentry_dsn
         },
         {
           name  = "APP_VERSION"

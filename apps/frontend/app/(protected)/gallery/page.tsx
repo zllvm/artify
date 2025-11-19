@@ -63,13 +63,13 @@ export default function GalleryPage() {
           </div>
         ) : (
           <div className={`${styles.emptyGallery} noselect`}>
-            {/* <Link
+            <Link
               href="/upload"
               className={`btn btn--form ${styles.uploadButton}`}
             >
               Upload
-            </Link> */}
-            <Link href="/upload" className={styles.uploadGraffitiLink}>
+            </Link>
+            {/* <Link href="/upload" className={styles.uploadGraffitiLink}>
               <Image
                 src="/images/textures/upload2.png" // <- Update this path!
                 alt="Upload Art"
@@ -77,14 +77,14 @@ export default function GalleryPage() {
                 height={600} // Adjust based on the actual size and desired scale
                 className={styles.uploadGraffitiImage}
               />
-            </Link>
-            <Image
+            </Link> */}
+            {/* <Image
               src="/images/textures/this-wall-needs-art.png"
               alt="This Wall Needs Art"
               width={300}
               height={300}
               className={styles.graffiti}
-            />
+            /> */}
           </div>
         )}
       </div>

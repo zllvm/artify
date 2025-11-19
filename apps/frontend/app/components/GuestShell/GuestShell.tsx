@@ -16,7 +16,13 @@ export default function GuestShell({ children }: { children: ReactNode }) {
     <div className={styles.guestContainer}>
       <header className={styles.header}>
         <div className={styles.logo}>
-          <Image src="/logo.png" alt="Artify logo" width={60} height={60} />
+          <Image
+            src="/logo.png"
+            alt="Artify logo"
+            width={60}
+            height={60}
+            priority
+          />
           <span className={`logo ${styles.logoText}`}>artify</span>
         </div>
       </header>

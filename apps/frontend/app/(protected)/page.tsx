@@ -1,14 +1,13 @@
 import Image from "next/image";
 
-import { getUser } from "@/lib/dal";
-
+// import { getUser } from "@/lib/dal";
 import styles from "./page.module.css";
 
-export default async function HomePage() {
-  const user = await getUser();
+export default function HomePage() {
+  // const user = await getUser();
 
-  if (user?.isAuthenticated) {
-  }
+  // if (user?.isAuthenticated) {
+  // }
 
   return (
     <section className={styles.container}>
@@ -22,11 +21,12 @@ export default async function HomePage() {
           Your <span className={styles.art}>art</span>, too.
         </div>
         <Image
-          src="/images/heart.png"
+          src="/images/heart2.png"
           alt="sketchy heart"
           width={100}
           height={100}
           className={styles.heart}
+          priority
         />
       </div>
     </section>

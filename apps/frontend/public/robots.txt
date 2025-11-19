@@ -1,0 +1,24 @@
+# Allow all crawlers
+User-agent: *
+
+# Allow crawling of public pages
+Allow: /
+Allow: /art/
+Allow: /login
+Allow: /privacy
+
+# Disallow protected/authenticated areas
+Disallow: /gallery
+Disallow: /upload
+Disallow: /settings
+Disallow: /share
+Disallow: /admin
+
+# Disallow API routes
+Disallow: /api/
+
+# Common exclusions
+Disallow: /_next/
+Disallow: /static/
+
+# Sitemap: https://artify.maxlabs.se/sitemap.xml

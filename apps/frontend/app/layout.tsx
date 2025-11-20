@@ -8,6 +8,8 @@ import {
   Space_Grotesk,
 } from "next/font/google";
 
+import { BACKEND_URL } from "./config";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -46,6 +48,7 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
+  metadataBase: BACKEND_URL ? new URL(BACKEND_URL) : null,
   title: "artify",
   description: "art platform",
   icons: {

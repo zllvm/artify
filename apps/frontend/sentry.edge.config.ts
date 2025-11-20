@@ -1,7 +1,11 @@
 import * as Sentry from "@sentry/nextjs";
 
+const dsn = process.env.NEXT_PUBLIC_SENTRY_DSN;
+console.log("[Sentry Edge] DSN:", dsn ? "configured" : "missing");
+
 Sentry.init({
-  dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
+  dsn,
+  debug: process.env.NEXT_PUBLIC_SENTRY_DEBUG === "true",
   // Adds request headers and IP for users, for more info visit:
   // https://docs.sentry.io/platforms/javascript/guides/nextjs/configuration/options/#sendDefaultPii
   sendDefaultPii: true,
@@ -20,3 +24,5 @@ Sentry.init({
     Sentry.consoleLoggingIntegration({ levels: ["warn", "error"] }),
   ],
 });
+
+console.log("[Sentry Edge] Initialized");

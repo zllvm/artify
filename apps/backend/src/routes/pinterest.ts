@@ -426,23 +426,36 @@ export const createPinterestRouter = (
         );
 
         if (!response.ok) {
-          const errorData = await response.json();
-          return res.status(400).json(errorData);
+          const errorData = (await response.json()) as {
+            code?: number;
+            message?: string;
+          };
+          const isPinNotFound =
+            errorData.code === 50 || errorData.message === "Pin not found.";
+
+          if (isPinNotFound) {
+            logger.warn("Pinterest pin not found during deletion", {
+              pinId,
+              shareId: share.id,
+            });
+          } else {
+            return res.status(400).json(errorData);
+          }
         }
+
+        share.isPublished = false;
+        share.publishDate = undefined;
+        if (share.metadata) {
+          delete share.metadata.pinId;
+        }
+
+        const apiResponse: ApiResponse<AnyShare> = {
+          success: true,
+          data: share,
+        };
+
+        res.json(apiResponse);
       }
-
-      share.isPublished = false;
-      share.publishDate = undefined;
-      if (share.metadata) {
-        delete share.metadata.pinId;
-      }
-
-      const apiResponse: ApiResponse<AnyShare> = {
-        success: true,
-        data: share,
-      };
-
-      res.json(apiResponse);
     }
   );
 

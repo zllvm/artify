@@ -115,11 +115,13 @@
   backdrop-filter: blur(0.625rem);
   border-radius: 1.25rem;
   box-shadow: 0 0.75rem 2rem rgba(0, 0, 0, 0.4);
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
   animation: fadeInUp 1.2s ease-out;
   z-index: 2;
   /* max-width: 43rem; */
   max-width: 30rem;
+  max-height: calc(100vh - 6rem);
   transition: transform 0.3s ease;
 
   will-change: opacity, transform;

@@ -12,6 +12,7 @@ import {
 
 import { ManifestModel } from "../models/manifest.js";
 import { PaintingModel } from "../models/painting.js";
+import { ShareModel } from "../models/share.js";
 import { ChatGptService } from "../services/chatGptService.js";
 import { ImageService } from "../services/imageService.js";
 import { logger } from "../utils/logger/logger.js";
@@ -398,6 +399,13 @@ export const createPaintingRouter = (
       if (tags !== undefined) painting.tags = tags;
 
       painting.updatedAt = new Date();
+
+      const shares = ShareModel.findByPaintingId(req.params.id);
+
+      for (const share of shares) {
+        share.updatedAt = new Date();
+        share.title = painting.title;
+      }
 
       logger.info("Painting updated successfully", {
         paintingId: painting.id,

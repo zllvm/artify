@@ -19,7 +19,7 @@ export default function Art({ share }: ArtProps) {
         <div>Artify Gallery</div>
       </div>
 
-      <div className={styles.paintingWrapper}>
+      <div className={`${styles.paintingWrapper} scroll--dark`}>
         <div className={styles.paintingWrapperInner}>
           <div className={styles.imageFrame}>
             <div className={styles.imageAnimWrapper}>

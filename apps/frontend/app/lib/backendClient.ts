@@ -1,4 +1,6 @@
 import type { ApiResponse, ApiToken } from "@artify/shared";
+import { cookies } from "next/headers";
+
 import { API_URL } from "../config";
 
 let cachedToken: { token: string; expiresAt: Date } | null = null;
@@ -78,12 +80,14 @@ export async function getServiceToken(): Promise<string> {
 
 export async function fetchBackend(path: string, options?: RequestInit) {
   const token = await getServiceToken();
+  const jwt = (await cookies()).get("jwt")?.value;
   return fetch(`${API_URL}${path}`, {
     ...options,
     cache: "no-store",
     headers: {
-      ...(options?.headers || {}),
       Authorization: `Bearer ${token}`,
+      ...(jwt ? { Cookie: `jwt=${jwt}` } : {}),
+      ...(options?.headers || {}),
     },
   });
 }

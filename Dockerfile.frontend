@@ -22,7 +22,11 @@ COPY packages ./packages
 COPY apps/frontend ./apps/frontend
 
 RUN pnpm install --frozen-lockfile
-RUN pnpm turbo run build --filter=frontend
+
+# Use BuildKit secret for Sentry auth token (won't be cached or logged)
+RUN --mount=type=secret,id=sentry_auth_token \
+    SENTRY_AUTH_TOKEN=$(cat /run/secrets/sentry_auth_token 2>/dev/null || echo "") \
+    pnpm turbo run build --filter=frontend
 
 RUN mkdir -p /app/apps/frontend/.next/cache && chown -R 65532:65532 /app
 

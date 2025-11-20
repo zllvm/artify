@@ -22,6 +22,11 @@ data "aws_cloudformation_export" "elb_listener" {
   name = "ecs-common-lb-listener"
 }
 
+# Fetch the health check secret from Secrets Manager
+data "aws_secretsmanager_secret_version" "health_check" {
+  secret_id = module.json_secret.secret_arn
+}
+
 resource "aws_security_group" "ecs_tasks" {
   name        = "${local.env_service_name}-ecs-tasks-sg"
   description = "Allow inbound traffic to ECS tasks"
@@ -55,8 +60,16 @@ resource "aws_lb_target_group" "app" {
   vpc_id      = data.aws_cloudformation_export.vpc.value
 
   health_check {
-    path = var.health_endpoint
-    port = var.container_port
+    # Health check path includes the secret token as a query parameter
+    # The token is fetched from AWS Secrets Manager
+    path                = "${var.health_endpoint}?token=${jsondecode(data.aws_secretsmanager_secret_version.health_check.secret_string)["HEALTH_CHECK_SECRET"]}"
+    port                = var.container_port
+    protocol            = "HTTP"
+    healthy_threshold   = 2
+    unhealthy_threshold = 3
+    timeout             = 5
+    interval            = 30
+    matcher             = "200"
   }
 }
 

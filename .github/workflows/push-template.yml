@@ -62,7 +62,7 @@ jobs:
           docker build \
           --secret id=sentry_auth_token,env=SENTRY_AUTH_TOKEN \
           --build-arg NEXT_PUBLIC_BACKEND_URL=${{ vars.BACKEND_URL }} \
-          --build-arg SENTRY_DSN=${{ vars.SENTRY_DSN }} \
+          --build-arg NEXT_PUBLIC_SENTRY_DSN=${{ vars.SENTRY_DSN }} \
           -t ${{ env.APP_NAME }} -f ${{ inputs.dockerfile }} .
 
       - name: Build Docker image (backend)

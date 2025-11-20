@@ -69,11 +69,6 @@ variable "health_endpoint" {
   default     = "/api/health"
 }
 
-variable "sentry_dsn" {
-  description = "Sentry DSN for frontend error tracking"
-  type        = string
-}
-
 variable "sentry_auth_token" {
   description = "Sentry Auth Token for uploading source maps"
   type        = string

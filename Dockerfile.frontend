@@ -12,8 +12,8 @@ ARG NEXT_PUBLIC_BACKEND_URL
 ENV NEXT_PUBLIC_BACKEND_URL=${NEXT_PUBLIC_BACKEND_URL}
 
 # Sentry DSN for client-side error tracking (baked into bundle at build time)
-ARG SENTRY_DSN
-ENV NEXT_PUBLIC_SENTRY_DSN=${SENTRY_DSN}
+ARG NEXT_PUBLIC_SENTRY_DSN
+ENV NEXT_PUBLIC_SENTRY_DSN=${NEXT_PUBLIC_SENTRY_DSN}
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY tsconfig*.json ./

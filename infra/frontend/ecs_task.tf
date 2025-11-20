@@ -111,13 +111,14 @@ resource "aws_ecs_task_definition" "main" {
           value = "1"
         },
         {
-          name  = "SENTRY_DSN"
-          value = var.sentry_dsn
-        },
-        {
           name  = "APP_VERSION"
           value = var.app_version
+        },
+        {
+          name  = "BACKEND_URL"
+          value = var.backend_url
         }
+
       ],
       secrets = [
         for key in local.secret_keys : {

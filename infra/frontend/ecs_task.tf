@@ -118,7 +118,6 @@ resource "aws_ecs_task_definition" "main" {
           name  = "BACKEND_URL"
           value = var.backend_url
         }
-
       ],
       secrets = [
         for key in local.secret_keys : {

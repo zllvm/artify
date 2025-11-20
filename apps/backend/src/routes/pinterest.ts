@@ -442,20 +442,20 @@ export const createPinterestRouter = (
             return res.status(400).json(errorData);
           }
         }
-
-        share.isPublished = false;
-        share.publishDate = undefined;
-        if (share.metadata) {
-          delete share.metadata.pinId;
-        }
-
-        const apiResponse: ApiResponse<AnyShare> = {
-          success: true,
-          data: share,
-        };
-
-        res.json(apiResponse);
       }
+
+      share.isPublished = false;
+      share.publishDate = undefined;
+      if (share.metadata) {
+        delete share.metadata.pinId;
+      }
+
+      const apiResponse: ApiResponse<AnyShare> = {
+        success: true,
+        data: share,
+      };
+
+      res.json(apiResponse);
     }
   );
 

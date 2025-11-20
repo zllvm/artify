@@ -174,23 +174,20 @@ export default function PinterestIntegration({
 
     try {
       if (isExisting) {
-        if (action === "publish" && !share.isPublished) {
-          const updated = await PinterestAdapter.publishShare(share.id);
-          onUpdated?.(updated);
-          onClose?.();
-          return;
-        }
-        const updated = await PinterestAdapter.update(share.id, {
+        let updated = await PinterestAdapter.update(share.id, {
           paintingId,
           userId: user!.id,
           alias: alias.trim() || undefined,
           description,
           tags,
           platform: Platform.Pinterest,
-          isPublished: action === "publish",
           boardId: selectedBoardId,
           linkedShareId: artifyShare || undefined,
         });
+
+        if (action === "publish" && !share.isPublished) {
+          updated = await PinterestAdapter.publishShare(share.id);
+        }
 
         onUpdated?.(updated);
         onClose?.();

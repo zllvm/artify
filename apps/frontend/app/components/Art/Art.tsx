@@ -7,9 +7,10 @@ import styles from "./Art.module.css";
 
 type ArtProps = {
   share: AnyShare;
+  enableScroll?: boolean;
 };
 
-export default function Art({ share }: ArtProps) {
+export default function Art({ share, enableScroll = true }: ArtProps) {
   const paragraphs = share.description?.split(/\n\s*\n+/).filter(Boolean) ?? [];
   return (
     <div className={styles.artContainer}>
@@ -19,7 +20,9 @@ export default function Art({ share }: ArtProps) {
         <div>Artify Gallery</div>
       </div>
 
-      <div className={`${styles.paintingWrapper} scroll--dark`}>
+      <div
+        className={`${styles.paintingWrapper}${enableScroll ? " scroll--dark" : ` ${styles.paintingWrapperNoScroll}`}`}
+      >
         <div className={styles.paintingWrapperInner}>
           <div className={styles.imageFrame}>
             <div className={styles.imageAnimWrapper}>

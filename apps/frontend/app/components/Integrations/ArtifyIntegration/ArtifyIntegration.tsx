@@ -100,7 +100,7 @@ function PreviewModal({ share, onCancel }: PreviewModalProps) {
           darkMode={true}
         />
         <div className="modal__content scroll--dark">
-          <Art share={share} />
+          <Art share={share} enableScroll={false} />
         </div>
       </div>
     </div>

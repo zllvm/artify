@@ -131,6 +131,11 @@
   backdrop-filter: blur(8px); */
 }
 
+.paintingWrapperNoScroll {
+  overflow-y: visible;
+  max-height: none;
+}
+
 .imageFrame {
   position: relative;
   overflow: hidden;

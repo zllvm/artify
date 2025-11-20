@@ -75,6 +75,10 @@ export class ShareModel {
     return this.shares;
   }
 
+  static findByUserId(userId: string): Array<AnyShare> {
+    return this.shares.filter((s) => s.userId === userId);
+  }
+
   static update<P extends Platform>(
     id: string,
     updates: UpdateShareInput<P>

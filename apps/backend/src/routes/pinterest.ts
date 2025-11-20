@@ -227,6 +227,10 @@ export const createPinterestRouter = (
       if (!painting)
         return res.status(404).json({ error: "Painting not found" });
 
+      if (painting.userId !== user.id) {
+        return res.status(403).json({ error: "Forbidden" });
+      }
+
       let artifyLink;
       if (parsed.linkedShareId) {
         artifyLink = {
@@ -288,6 +292,18 @@ export const createPinterestRouter = (
 
   // update share
   router.patch("/share/:id", requireAuth, (req, res) => {
+    const user = req.user;
+    if (!user) return res.status(401).json({ error: "Unauthorized" });
+
+    const existingShare = ShareModel.findById(req.params.id);
+    if (!existingShare) {
+      return res.status(404).json({ success: false, error: "Share not found" });
+    }
+
+    if (existingShare.userId !== user.id) {
+      return res.status(403).json({ success: false, error: "Forbidden" });
+    }
+
     try {
       const parsed = updateShareSchema.parse(req.body);
       let artifyLink;
@@ -331,6 +347,10 @@ export const createPinterestRouter = (
         return res
           .status(404)
           .json({ success: false, error: "Share not found" });
+      }
+
+      if (existingShare.userId !== user.id) {
+        return res.status(403).json({ success: false, error: "Forbidden" });
       }
 
       if (existingShare.isPublished) {
@@ -387,6 +407,10 @@ export const createPinterestRouter = (
       const { id } = req.params;
       const share = ShareModel.findById(id, Platform.Pinterest);
       if (!share) return res.status(404).json({ error: "Share not found" });
+
+      if (share.userId !== user.id) {
+        return res.status(403).json({ error: "Forbidden" });
+      }
 
       const pinId = share.metadata?.pinId;
       if (pinId) {

@@ -5,34 +5,36 @@ import { ManifestModel } from "../models/manifest.js";
 import { PaintingModel } from "../models/painting.js";
 import { logger } from "../utils/logger/logger.js";
 
+import type { RequestHandler } from "express";
 import type { ApiResponse, Manifest } from "@artify/shared";
 
 const UpdateManifestSchema = z.object({
   content: z.string().optional(),
 });
-type UpdateManifestBody = z.infer<typeof UpdateManifestSchema>;
 
 const CreateManifestSchema = z.object({
   content: z.string().min(1, "Manifest content is required"),
 });
 
-type CreateManifestBody = z.infer<typeof CreateManifestSchema>;
-
 const UpdateUserManifestSchema = z.object({
   content: z.string().optional(),
 });
-type UpdateUserManifestBody = z.infer<typeof UpdateUserManifestSchema>;
 
-export const createManifestRouter = () => {
+export const createManifestRouter = (requireAuth: RequestHandler) => {
   const router = Router();
 
   // Get current user's manifest (create if doesn't exist)
-  router.get("/", (req: Request, res: Response) => {
-    try {
-      const userId = req.user?.id || "demo-user"; // Get user ID from JWT
-      logger.info("Fetching user's manifest", { userId });
+  router.get("/", requireAuth, (req: Request, res: Response) => {
+    const user = req.user;
 
-      const manifest = ManifestModel.findByUserId(userId); // Get the first (should be only one)
+    if (!user) {
+      return res.status(401).send("Unauthorized");
+    }
+
+    try {
+      logger.info("Fetching user's manifest", { userId: user.id });
+
+      const manifest = ManifestModel.findByUserId(user.id);
 
       if (!manifest) {
         res.status(404).json({
@@ -57,13 +59,13 @@ export const createManifestRouter = () => {
   });
 
   // Update current user's manifest
-  router.put<
-    Record<string, never>,
-    ApiResponse<Manifest>,
-    UpdateUserManifestBody
-  >("/", (req, res) => {
+  router.put("/", requireAuth, (req, res) => {
     try {
-      const userId = req.user?.id || "demo-user";
+      const user = req.user;
+
+      if (!user) {
+        return res.status(401).send("Unauthorized");
+      }
 
       const result = UpdateUserManifestSchema.safeParse(req.body);
       if (!result.success) {
@@ -73,18 +75,18 @@ export const createManifestRouter = () => {
         });
       }
 
-      const { content } = req.body;
+      const { content } = result.data;
 
-      logger.info("Updating user's manifest", { userId });
+      logger.info("Updating user's manifest", { userId: user.id });
 
       // Find existing manifest for this user
-      let manifest = ManifestModel.findByUserId(userId);
+      let manifest = ManifestModel.findByUserId(user.id);
 
       // If no manifest exists, create one
       if (!manifest) {
         manifest = ManifestModel.create({
           content: content || "",
-          userId,
+          userId: user.id,
         });
       } else {
         // Update existing manifest
@@ -112,8 +114,13 @@ export const createManifestRouter = () => {
     }
   });
 
-  // Get all manifests
-  router.get("/", (_req: Request, res: Response) => {
+  router.get("/", requireAuth, (req: Request, res: Response) => {
+    const user = req.user;
+
+    if (!user || !user.isAdmin) {
+      return res.status(401).send("Unauthorized");
+    }
+
     logger.info("Fetching all manifests");
     const manifests = ManifestModel.findAll();
     const response: ApiResponse<Manifest[]> = {
@@ -123,8 +130,13 @@ export const createManifestRouter = () => {
     res.json(response);
   });
 
-  // Get single manifest by ID
-  router.get("/:id", (req: Request, res: Response) => {
+  router.get("/:id", requireAuth, (req: Request, res: Response) => {
+    const user = req.user;
+
+    if (!user || !user.isAdmin) {
+      return res.status(401).send("Unauthorized");
+    }
+
     try {
       const manifest = ManifestModel.findById(req.params.id);
       if (!manifest) {
@@ -141,14 +153,23 @@ export const createManifestRouter = () => {
     }
   });
 
-  // Get paintings using a specific manifest
-  router.get("/:id/paintings", (req: Request, res: Response) => {
+  router.get("/:id/paintings", requireAuth, (req: Request, res: Response) => {
+    const user = req.user;
+
+    if (!user) {
+      return res.status(401).send("Unauthorized");
+    }
+
     try {
       const manifest = ManifestModel.findById(req.params.id);
       if (!manifest) {
         return res
           .status(404)
           .json({ success: false, error: "Manifest not found" });
+      }
+
+      if (manifest.userId !== user.id) {
+        return res.status(403).json({ success: false, error: "Forbidden" });
       }
 
       const paintings = PaintingModel.findAll().filter(
@@ -165,97 +186,115 @@ export const createManifestRouter = () => {
   });
 
   // Create new manifest
-  router.post<Record<string, never>, ApiResponse<Manifest>, CreateManifestBody>(
-    "/",
-    (req, res) => {
-      try {
-        const result = CreateManifestSchema.safeParse(req.body);
-        if (!result.success) {
-          return res.status(400).json({
-            success: false,
-            error: "Invalid body: " + result.error.message,
-          });
-        }
+  router.post("/", requireAuth, (req, res) => {
+    const user = req.user;
 
-        const { content } = result.data;
+    if (!user) {
+      return res.status(401).send("Unauthorized");
+    }
 
-        logger.info("Creating new manifest");
-
-        const manifest = ManifestModel.create({
-          content,
-          userId: "demo-user", // TODO: Use actual user from session
-        });
-
-        logger.info("Manifest created successfully", {
-          manifestId: manifest.id,
-        });
-
-        const response: ApiResponse<Manifest> = {
-          success: true,
-          data: manifest,
-        };
-
-        res.status(201).json(response);
-      } catch (error) {
-        logger.error("Failed to create manifest", error as Error);
-        res.status(500).json({
+    try {
+      const result = CreateManifestSchema.safeParse(req.body);
+      if (!result.success) {
+        return res.status(400).json({
           success: false,
-          error: "Failed to create manifest",
+          error: "Invalid body: " + result.error.message,
         });
       }
+
+      const { content } = result.data;
+
+      logger.info("Creating new manifest");
+
+      const manifest = ManifestModel.create({
+        content,
+        userId: user.id,
+      });
+
+      logger.info("Manifest created successfully", {
+        manifestId: manifest.id,
+      });
+
+      const response: ApiResponse<Manifest> = {
+        success: true,
+        data: manifest,
+      };
+
+      res.status(201).json(response);
+    } catch (error) {
+      logger.error("Failed to create manifest", error as Error);
+      res.status(500).json({
+        success: false,
+        error: "Failed to create manifest",
+      });
     }
-  );
+  });
 
-  // Update manifest by ID
-  router.patch<{ id: string }, ApiResponse<Manifest>, UpdateManifestBody>(
-    "/:id",
-    (req, res) => {
-      try {
-        const result = UpdateManifestSchema.safeParse(req.body);
-        if (!result.success) {
-          return res.status(400).json({
-            success: false,
-            error: "Invalid body:" + result.error.message,
-          });
-        }
+  router.patch("/:id", requireAuth, (req, res) => {
+    const user = req.user;
 
-        const manifest = ManifestModel.findById(req.params.id);
-        if (!manifest) {
-          return res
-            .status(404)
-            .json({ success: false, error: "Manifest not found" });
-        }
+    if (!user) {
+      return res.status(401).send("Unauthorized");
+    }
 
-        const { content } = result.data;
-
-        const updates: Partial<Manifest> = {};
-        if (content !== undefined) updates.content = content;
-
-        const updatedManifest = ManifestModel.update(req.params.id, updates);
-
-        logger.info("Manifest updated successfully", {
-          manifestId: manifest.id,
-          updates,
+    try {
+      const result = UpdateManifestSchema.safeParse(req.body);
+      if (!result.success) {
+        return res.status(400).json({
+          success: false,
+          error: "Invalid body:" + result.error.message,
         });
-
-        res.json({ success: true, data: updatedManifest! });
-      } catch (error) {
-        logger.error("Error updating manifest", error as Error);
-        res
-          .status(500)
-          .json({ success: false, error: "Failed to update manifest" });
       }
-    }
-  );
 
-  // Delete manifest by ID
-  router.delete("/:id", (req: Request, res: Response) => {
+      const manifest = ManifestModel.findById(req.params.id);
+      if (!manifest) {
+        return res
+          .status(404)
+          .json({ success: false, error: "Manifest not found" });
+      }
+
+      if (manifest.userId !== user.id) {
+        return res.status(403).json({ success: false, error: "Forbidden" });
+      }
+
+      const { content } = result.data;
+
+      const updates: Partial<Manifest> = {};
+      if (content !== undefined) updates.content = content;
+
+      const updatedManifest = ManifestModel.update(req.params.id, updates);
+
+      logger.info("Manifest updated successfully", {
+        manifestId: manifest.id,
+        updates,
+      });
+
+      res.json({ success: true, data: updatedManifest! });
+    } catch (error) {
+      logger.error("Error updating manifest", error as Error);
+      res
+        .status(500)
+        .json({ success: false, error: "Failed to update manifest" });
+    }
+  });
+
+  router.delete("/:id", requireAuth, (req: Request, res: Response) => {
+    const user = req.user;
+
+    if (!user) {
+      return res.status(401).send("Unauthorized");
+    }
+
     try {
       const manifest = ManifestModel.findById(req.params.id);
       if (!manifest) {
         return res
           .status(404)
           .json({ success: false, error: "Manifest not found" });
+      }
+
+      if (manifest.userId !== user.id) {
+        return res.status(403).json({ success: false, error: "Forbidden" });
       }
 
       // Check if any paintings are using this manifest

@@ -26,13 +26,19 @@ export type CreateShareRequest = z.infer<typeof createShareSchema>;
 const updateShareSchema = createShareSchema.partial();
 
 // Create router factory
-export const createShareRouter = (requireAnyAuth: RequestHandler) => {
+export const createShareRouter = (
+  requireAuth: RequestHandler,
+  requireAnyAuth: RequestHandler
+) => {
   const router = Router();
 
   // GET all shares
-  router.get("/", (_req: Request, res: Response) => {
+  router.get("/", requireAuth, (req: Request, res: Response) => {
+    if (!req.user) {
+      return res.status(401).json({ success: false, error: "Unauthorized" });
+    }
     logger.info("Fetching all shares");
-    const shares = ShareModel.findAll();
+    const shares = ShareModel.findByUserId(req.user.id);
     const response: ApiResponse<AnyShare[]> = { success: true, data: shares };
     res.json(response);
   });
@@ -46,6 +52,11 @@ export const createShareRouter = (requireAnyAuth: RequestHandler) => {
           .status(404)
           .json({ success: false, error: "Share not found" });
       }
+
+      if (!share.isPublished && req.user?.id !== share.userId) {
+        return res.status(403).json({ success: false, error: "Forbidden" });
+      }
+
       res.json({ success: true, data: share });
     } catch (err) {
       logger.error("Error fetching share", err as Error);
@@ -59,7 +70,12 @@ export const createShareRouter = (requireAnyAuth: RequestHandler) => {
     (req: Request, res: Response) => {
       try {
         const shares = ShareModel.findByPaintingId(req.params.paintingId);
-        res.json({ success: true, data: shares });
+
+        const allowedShares = shares.filter(
+          (s) => s.isPublished || req.user?.id === s.userId
+        );
+
+        res.json({ success: true, data: allowedShares });
       } catch (err) {
         logger.error("Error fetching shares by painting ID", err as Error);
         res
@@ -69,50 +85,62 @@ export const createShareRouter = (requireAnyAuth: RequestHandler) => {
     }
   );
 
-  router.post(
-    "/",
-    (req: Request<unknown, unknown, CreateShareRequest>, res: Response) => {
-      try {
-        const parsed = createShareSchema.parse(req.body);
-
-        const painting = PaintingModel.findById(parsed.paintingId);
-
-        let artifyLink;
-        if (parsed.linkedShareId) {
-          artifyLink = {
-            shareId: parsed.linkedShareId,
-            url: `${config.app.frontendUrl}/art/${parsed.linkedShareId}`,
-          };
-        }
-
-        const share = ShareModel.create({
-          paintingId: parsed.paintingId,
-          userId: parsed.userId,
-          alias: parsed.alias,
-          description: parsed.description,
-          tags: parsed.tags,
-          platform: parsed.platform,
-          isPublished: parsed.isPublished ?? false,
-          title: painting?.title,
-          images: painting?.images ?? { original: "" },
-          artify: artifyLink,
-        });
-
-        logger.info("Share created", {
-          shareId: share.id,
-          platform: parsed.platform,
-        });
-        res.status(201).json({ success: true, data: share });
-      } catch (err) {
-        logger.error("Error creating share", err as Error);
-        res
-          .status(500)
-          .json({ success: false, error: "Failed to create share" });
-      }
+  router.post("/", requireAuth, (req: Request, res: Response) => {
+    if (!req.user) {
+      return res.status(401).json({ success: false, error: "Unauthorized" });
     }
-  );
 
-  router.patch("/:id", (req: Request, res: Response) => {
+    try {
+      const parsed = createShareSchema.parse(req.body);
+
+      const painting = PaintingModel.findById(parsed.paintingId);
+
+      let artifyLink;
+      if (parsed.linkedShareId) {
+        artifyLink = {
+          shareId: parsed.linkedShareId,
+          url: `${config.app.frontendUrl}/art/${parsed.linkedShareId}`,
+        };
+      }
+
+      const share = ShareModel.create({
+        paintingId: parsed.paintingId,
+        userId: parsed.userId,
+        alias: parsed.alias,
+        description: parsed.description,
+        tags: parsed.tags,
+        platform: parsed.platform,
+        isPublished: parsed.isPublished ?? false,
+        title: painting?.title,
+        images: painting?.images ?? { original: "" },
+        artify: artifyLink,
+      });
+
+      logger.info("Share created", {
+        shareId: share.id,
+        platform: parsed.platform,
+      });
+      res.status(201).json({ success: true, data: share });
+    } catch (err) {
+      logger.error("Error creating share", err as Error);
+      res.status(500).json({ success: false, error: "Failed to create share" });
+    }
+  });
+
+  router.patch("/:id", requireAuth, (req: Request, res: Response) => {
+    if (!req.user) {
+      return res.status(401).json({ success: false, error: "Unauthorized" });
+    }
+
+    const existingShare = ShareModel.findById(req.params.id);
+    if (!existingShare) {
+      return res.status(404).json({ success: false, error: "Share not found" });
+    }
+
+    if (existingShare.userId !== req.user.id) {
+      return res.status(403).json({ success: false, error: "Forbidden" });
+    }
+
     try {
       const parsed = updateShareSchema.parse(req.body);
 
@@ -145,13 +173,21 @@ export const createShareRouter = (requireAnyAuth: RequestHandler) => {
     }
   });
 
-  router.post("/:id/publish", (req: Request, res: Response) => {
+  router.post("/:id/publish", requireAuth, (req: Request, res: Response) => {
+    if (!req.user) {
+      return res.status(401).json({ success: false, error: "Unauthorized" });
+    }
+
     try {
       const share = ShareModel.publish(req.params.id);
       if (!share) {
         return res
           .status(404)
           .json({ success: false, error: "Share not found" });
+      }
+
+      if (share.userId !== req.user.id) {
+        return res.status(403).json({ success: false, error: "Forbidden" });
       }
 
       logger.info("Share published", {
@@ -167,13 +203,21 @@ export const createShareRouter = (requireAnyAuth: RequestHandler) => {
     }
   });
 
-  router.post("/:id/unpublish", (req: Request, res: Response) => {
+  router.post("/:id/unpublish", requireAuth, (req: Request, res: Response) => {
+    if (!req.user) {
+      return res.status(401).json({ success: false, error: "Unauthorized" });
+    }
+
     try {
       const share = ShareModel.findById(req.params.id);
       if (!share) {
         return res
           .status(404)
           .json({ success: false, error: "Share not found" });
+      }
+
+      if (share.userId !== req.user.id) {
+        return res.status(403).json({ success: false, error: "Forbidden" });
       }
 
       if (
@@ -197,7 +241,20 @@ export const createShareRouter = (requireAnyAuth: RequestHandler) => {
     }
   });
 
-  router.delete("/:id", (req: Request, res: Response) => {
+  router.delete("/:id", requireAuth, (req: Request, res: Response) => {
+    if (!req.user) {
+      return res.status(401).json({ success: false, error: "Unauthorized" });
+    }
+
+    const share = ShareModel.findById(req.params.id);
+    if (!share) {
+      return res.json({ success: true });
+    }
+
+    if (share.userId !== req.user.id) {
+      return res.status(403).json({ success: false, error: "Forbidden" });
+    }
+
     try {
       const success = ShareModel.delete(req.params.id);
       if (!success) {

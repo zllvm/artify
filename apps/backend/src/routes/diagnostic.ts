@@ -6,10 +6,13 @@ import RuntimeStats from "../utils/runtimeStats.js";
 
 import type { ApiResponse } from "@artify/shared";
 import type { Request, Response, RequestHandler } from "express";
-export const createDiagRouter = (requireAuth: RequestHandler) => {
+export const createDiagRouter = (
+  requireAuth: RequestHandler,
+  requireAlb: RequestHandler
+) => {
   const router = Router();
 
-  router.get("/ping", (req: Request, res: Response) => {
+  router.get("/ping", requireAlb, (req: Request, res: Response) => {
     res.json({ message: "pong" });
   });
 

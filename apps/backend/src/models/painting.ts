@@ -11,6 +11,10 @@ export class PaintingModel {
     return paintings.find((p) => p.id === id);
   }
 
+  static findByUserId(userId: string): Painting[] {
+    return paintings.filter((p) => p.userId === userId);
+  }
+
   static create(
     painting: Omit<Painting, "id" | "createdAt" | "updatedAt">
   ): Painting {

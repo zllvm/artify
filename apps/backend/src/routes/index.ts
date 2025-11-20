@@ -1,5 +1,6 @@
 import { Router } from "express";
 
+import { requireAlb } from "../middleware/requireAlb.js";
 import { requireAnyAuth } from "../middleware/requireAnyAuth.js";
 import { requireAuth } from "../middleware/requireAuth.js";
 import { UserRepository } from "../repositories/userRepository.js";
@@ -25,13 +26,13 @@ export const createRoutes = (
   const auth = requireAuth(userJwt, userRepo);
   const anyAuth = requireAnyAuth(userJwt, serviceJwt, userRepo);
 
-  router.use("/diagnostic", createDiagRouter(auth));
+  router.use("/diagnostic", createDiagRouter(auth, requireAlb));
   router.use("/auth", createAuthRouter(passport, auth, serviceJwt));
   router.use("/paintings", createPaintingRouter(auth, openai));
-  router.use("/manifest", createManifestRouter());
+  router.use("/manifest", createManifestRouter(auth));
   // router.use("/facebook", facebookRoutes);
   router.use("/pinterest", createPinterestRouter(auth, userRepo));
-  router.use("/shares", createShareRouter(anyAuth));
+  router.use("/shares", createShareRouter(auth, anyAuth));
 
   return router;
 };

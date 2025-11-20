@@ -31,6 +31,8 @@ export function createConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
         .filter(Boolean),
     },
 
+    healthCheckSecret: env.HEALTH_CHECK_SECRET,
+
     jwt: {
       privateKey: Buffer.from(
         requireEnv(env, "JWT_PRIVATE_KEY"),
@@ -133,6 +135,7 @@ export interface AppConfig {
     isProd: boolean;
     adminEmails: string[];
   };
+  healthCheckSecret?: string;
   jwt: {
     privateKey: string;
     publicKey: string;

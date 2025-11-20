@@ -62,7 +62,7 @@ const UpdatePaintingSchema = z.object({
   tags: z.array(z.string()).optional(),
 });
 
-type UpdatePaintingBody = z.infer<typeof UpdatePaintingSchema>;
+// type UpdatePaintingBody = z.infer<typeof UpdatePaintingSchema>;
 
 export const createPaintingRouter = (
   requireAuth: RequestHandler,
@@ -70,9 +70,15 @@ export const createPaintingRouter = (
 ) => {
   const router = Router();
 
-  router.get("/", (_req: Request, res: Response) => {
+  router.get("/", requireAuth, (req: Request, res: Response) => {
+    const user = req.user;
+
+    if (!user) {
+      return res.status(401).send("Unauthorized");
+    }
+
     logger.info("Fetching all paintings");
-    const paintings = PaintingModel.findAll();
+    const paintings = PaintingModel.findByUserId(user.id);
     const response: ApiResponse<Painting[]> = {
       success: true,
       data: paintings,
@@ -81,13 +87,25 @@ export const createPaintingRouter = (
   });
 
   router.get("/:id", requireAuth, (req: Request, res: Response) => {
+    const user = req.user;
+
+    if (!user) {
+      return res.status(401).send("Unauthorized");
+    }
+
     try {
       const painting = PaintingModel.findById(req.params.id);
+
       if (!painting) {
         return res
           .status(404)
           .json({ success: false, error: "Painting not found" });
       }
+
+      if (painting.userId !== user.id) {
+        return res.status(403).json({ success: false, error: "Forbidden" });
+      }
+
       return res.json({ success: true, data: painting });
     } catch (error) {
       logger.error("Error fetching painting", error as Error);
@@ -191,6 +209,12 @@ export const createPaintingRouter = (
   );
 
   router.post("/:id/describe", requireAuth, async (req, res) => {
+    const user = req.user;
+
+    if (!user) {
+      return res.status(401).send("Unauthorized");
+    }
+
     try {
       const params = req.params as { id: string };
       const body = req.body as DescribeBody;
@@ -214,6 +238,14 @@ export const createPaintingRouter = (
           success: false,
           data: { id: params.id },
           error: "Painting not found",
+        } as ApiResponse<Painting>);
+      }
+
+      if (painting.userId !== user.id) {
+        return res.status(403).json({
+          success: false,
+          data: { id: params.id },
+          error: "Forbidden",
         } as ApiResponse<Painting>);
       }
 
@@ -298,82 +330,96 @@ export const createPaintingRouter = (
   });
 
   // Get manifest for a specific painting
-  router.get("/:id/manifest", requireAuth, (req: Request, res: Response) => {
+  // router.get("/:id/manifest", requireAuth, (req: Request, res: Response) => {
+  //   try {
+  //     const painting = PaintingModel.findById(req.params.id);
+  //     if (!painting) {
+  //       return res
+  //         .status(404)
+  //         .json({ success: false, error: "Painting not found" });
+  //     }
+
+  //     if (!painting.manifestId) {
+  //       return res
+  //         .status(404)
+  //         .json({ success: false, error: "Painting has no manifest" });
+  //     }
+
+  //     const manifest = ManifestModel.findById(painting.manifestId);
+  //     if (!manifest) {
+  //       return res
+  //         .status(404)
+  //         .json({ success: false, error: "Manifest not found" });
+  //     }
+
+  //     res.json({ success: true, data: manifest });
+  //   } catch (error) {
+  //     logger.error("Error fetching manifest for painting", error as Error);
+  //     res
+  //       .status(500)
+  //       .json({ success: false, error: "Failed to fetch manifest" });
+  //   }
+  // });
+
+  // Update painting by ID
+  router.patch("/:id", requireAuth, (req, res) => {
+    const user = req.user;
+
+    if (!user) {
+      return res.status(401).send("Unauthorized");
+    }
+
     try {
+      const result = UpdatePaintingSchema.safeParse(req.body);
+      if (!result.success) {
+        return res.status(400).json({
+          success: false,
+          error: "Invalid body: " + result.error.message,
+        });
+      }
+
       const painting = PaintingModel.findById(req.params.id);
+
       if (!painting) {
         return res
           .status(404)
           .json({ success: false, error: "Painting not found" });
       }
 
-      if (!painting.manifestId) {
-        return res
-          .status(404)
-          .json({ success: false, error: "Painting has no manifest" });
+      if (painting.userId !== user.id) {
+        return res.status(403).json({ success: false, error: "Forbidden" });
       }
 
-      const manifest = ManifestModel.findById(painting.manifestId);
-      if (!manifest) {
-        return res
-          .status(404)
-          .json({ success: false, error: "Manifest not found" });
-      }
+      const { title, description, tags } = result.data;
 
-      res.json({ success: true, data: manifest });
+      // Update only provided fields
+      if (title !== undefined) painting.title = title;
+      if (description !== undefined) painting.description = description;
+      if (tags !== undefined) painting.tags = tags;
+
+      painting.updatedAt = new Date();
+
+      logger.info("Painting updated successfully", {
+        paintingId: painting.id,
+        updates: { title, description, tags },
+      });
+
+      res.json({ success: true, data: painting });
     } catch (error) {
-      logger.error("Error fetching manifest for painting", error as Error);
+      logger.error("Error updating painting", error as Error);
       res
         .status(500)
-        .json({ success: false, error: "Failed to fetch manifest" });
+        .json({ success: false, error: "Failed to update painting" });
     }
   });
 
-  // Update painting by ID
-  router.patch<{ id: string }, ApiResponse<Painting>, UpdatePaintingBody>(
-    "/:id",
-    (req, res) => {
-      try {
-        const result = UpdatePaintingSchema.safeParse(req.body);
-        if (!result.success) {
-          return res.status(400).json({
-            success: false,
-            error: "Invalid body: " + result.error.message,
-          });
-        }
-
-        const painting = PaintingModel.findById(req.params.id);
-        if (!painting) {
-          return res
-            .status(404)
-            .json({ success: false, error: "Painting not found" });
-        }
-
-        const { title, description, tags } = req.body;
-
-        // Update only provided fields
-        if (title !== undefined) painting.title = title;
-        if (description !== undefined) painting.description = description;
-        if (tags !== undefined) painting.tags = tags;
-
-        painting.updatedAt = new Date();
-
-        logger.info("Painting updated successfully", {
-          paintingId: painting.id,
-          updates: { title, description, tags },
-        });
-
-        res.json({ success: true, data: painting });
-      } catch (error) {
-        logger.error("Error updating painting", error as Error);
-        res
-          .status(500)
-          .json({ success: false, error: "Failed to update painting" });
-      }
-    }
-  );
-
   router.get("/proxy/image", requireAuth, async (req, res) => {
+    const user = req.user;
+
+    if (!user) {
+      return res.status(401).send("Unauthorized");
+    }
+
     const imageUrl = req.query.url as string;
     if (!imageUrl || !imageUrl.startsWith("http")) {
       return res.status(400).json({ error: "Invalid image URL" });

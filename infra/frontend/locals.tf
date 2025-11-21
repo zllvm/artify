@@ -7,7 +7,7 @@ locals {
   # domain = "${var.service_name}.${var.domain_name}"
 
    secret_keys = [
-    "SENTRY_DSN", "NEXT_PUBLIC_SENTRY_DSN", "SENTRY_AUTH_TOKEN",
+    #"SENTRY_DSN", "NEXT_PUBLIC_SENTRY_DSN", "SENTRY_AUTH_TOKEN",
     "SERVICE_CLIENT_ID","SERVICE_CLIENT_SECRET","HEALTH_CHECK_SECRET"
   ]
 

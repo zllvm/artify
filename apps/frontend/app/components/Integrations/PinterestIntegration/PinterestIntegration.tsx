@@ -4,6 +4,7 @@ import { PaintingAdapter } from "@/adapters/PaintingAdapter";
 import { PinterestAdapter } from "@/adapters/PinterestAdapter";
 import { ShareAdapter } from "@/adapters/ShareAdapter";
 import AutoGrowTextarea from "@/components/Inputs/AutoGrowTextarea";
+import Modal from "@/components/Modal/Modal";
 import { useAuth } from "@/hooks";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { fetchBoards } from "@/store/pinterestSlice";
@@ -42,35 +43,31 @@ function ChangeAliasModal({
   const [alias, setAlias] = useState(initialAlias);
 
   return (
-    <>
-      <div className="modalOverlay" onClick={onCancel}>
-        <div className="modal" onClick={(e) => e.stopPropagation()}>
-          <div className="modalHeader">
-            <h2>Change share alias</h2>
-          </div>
-          <input
-            type="text"
-            value={alias}
-            onChange={(e) => setAlias(e.target.value)}
-            className="input"
-          />
-          <div className={styles.modalActions}>
-            <div></div>
-            <div className={styles.mainActions}>
-              <button className={`btn btn--subtle`} onClick={onCancel}>
-                Cancel
-              </button>
-              <button
-                className={`btn btn--inverse`}
-                onClick={() => onConfirm(alias)}
-              >
-                Save
-              </button>
-            </div>
-          </div>
+    <Modal onCancel={onCancel} adjustForSidebar>
+      <div className="modalHeader">
+        <h2>Change share alias</h2>
+      </div>
+      <input
+        type="text"
+        value={alias}
+        onChange={(e) => setAlias(e.target.value)}
+        className="input"
+      />
+      <div className={styles.modalActions}>
+        <div></div>
+        <div className={styles.mainActions}>
+          <button className={`btn btn--subtle`} onClick={onCancel}>
+            Cancel
+          </button>
+          <button
+            className={`btn btn--inverse`}
+            onClick={() => onConfirm(alias)}
+          >
+            Save
+          </button>
         </div>
       </div>
-    </>
+    </Modal>
   );
 }
 

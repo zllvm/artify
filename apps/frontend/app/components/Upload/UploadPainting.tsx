@@ -4,31 +4,16 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { Toolbox } from "@/components/Integrations/Toolbox/Toolbox";
+import Modal from "@/components/Modal/Modal";
 import { useIsMobile } from "@/hooks";
 import { UploadMethod } from "@/hooks/types/UploadMethod";
 import { UploadStatus, useUploadPainting } from "@/hooks/useUploadPainting";
-import { useAppSelector } from "@/store/hooks";
-import { CLOSED_SIDEBAR_WIDTH } from "@/store/sidebarState";
 
 import styles from "./UploadPainting.module.css";
 
 function Help() {
   const [helpVisible, setHelpVisible] = useState(false);
-  const isMobile = useIsMobile();
   const showModalSidebar = useIsMobile(1281);
-  const { widthDesktop, widthMobile } = useAppSelector(
-    (state) => state.sidebar
-  );
-
-  const sidebarWidth = isMobile
-    ? showModalSidebar
-      ? CLOSED_SIDEBAR_WIDTH
-      : widthMobile
-    : widthDesktop;
-
-  const modalStyle = {
-    marginLeft: `${sidebarWidth}px`,
-  };
 
   const toggleHelp = (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,11 +29,6 @@ function Help() {
       className={`${styles.help} ${!helpVisible ? styles.collapsed : ""} scroll
       ${showModalSidebar ? styles.mobile : ""}`}
     >
-      {/* <img
-        src="/images/mona_lisa-thumb2.png"
-        alt="Mona Lisa"
-        className={styles.helpImage}
-      /> */}
       <Image
         src="/images/mona_lisa-thumb2.png"
         alt="Mona Lisa"
@@ -123,21 +103,15 @@ function Help() {
 
   if (showModalSidebar) {
     helpContent = (
-      <div className="modalOverlay" onClick={onCancel}>
-        <div
-          className="modal modal--slim"
-          style={modalStyle}
-          onClick={(e) => e.stopPropagation()}
-        >
-          <Toolbox
-            onClose={onCancel}
-            canBeCompact={false}
-            right="0.75rem"
-            darkMode={false}
-          />
-          <div className="modal__content">{helpContent}</div>
-        </div>
-      </div>
+      <Modal onCancel={onCancel} isSlim adjustForSidebar>
+        <Toolbox
+          onClose={onCancel}
+          canBeCompact={false}
+          right="0.75rem"
+          darkMode={false}
+        />
+        <div className="modal__content">{helpContent}</div>
+      </Modal>
     );
   }
 

@@ -4,8 +4,8 @@ import { PaintingAdapter } from "@/adapters/PaintingAdapter";
 import { ShareAdapter } from "@/adapters/ShareAdapter";
 import Art from "@/components/Art/Art";
 import AutoGrowTextarea from "@/components/Inputs/AutoGrowTextarea";
-import { useAuth, useIsMobile } from "@/hooks";
-import { useAppSelector } from "@/store/hooks";
+import Modal from "@/components/Modal/Modal";
+import { useAuth } from "@/hooks";
 import { formatDateTime } from "@/utils/dateUtils";
 import { AnyShare, Painting, Platform } from "@artify/shared";
 import { faEyeSlash, faLightbulb } from "@fortawesome/free-solid-svg-icons";
@@ -38,33 +38,31 @@ function ChangeAliasModal({
   const [alias, setAlias] = useState(initialAlias);
 
   return (
-    <div className="modalOverlay" onClick={onCancel}>
-      <div className="modal" onClick={(e) => e.stopPropagation()}>
-        <div className="modalHeader">
-          <h2>Change share alias</h2>
-        </div>
-        <input
-          type="text"
-          value={alias}
-          onChange={(e) => setAlias(e.target.value)}
-          className="input"
-        />
-        <div className={styles.modalActions}>
-          <div></div>
-          <div className={styles.mainActions}>
-            <button className={`btn btn--subtle`} onClick={onCancel}>
-              Cancel
-            </button>
-            <button
-              className={`btn btn--inverse`}
-              onClick={() => onConfirm(alias)}
-            >
-              Save
-            </button>
-          </div>
+    <Modal onCancel={onCancel} adjustForSidebar>
+      <div className="modalHeader">
+        <h2>Change share alias</h2>
+      </div>
+      <input
+        type="text"
+        value={alias}
+        onChange={(e) => setAlias(e.target.value)}
+        className="input"
+      />
+      <div className={styles.modalActions}>
+        <div></div>
+        <div className={styles.mainActions}>
+          <button className={`btn btn--subtle`} onClick={onCancel}>
+            Cancel
+          </button>
+          <button
+            className={`btn btn--inverse`}
+            onClick={() => onConfirm(alias)}
+          >
+            Save
+          </button>
         </div>
       </div>
-    </div>
+    </Modal>
   );
 }
 
@@ -74,36 +72,18 @@ type PreviewModalProps = {
 };
 
 function PreviewModal({ share, onCancel }: PreviewModalProps) {
-  const isMobile = useIsMobile();
-
-  const { widthDesktop, widthMobile } = useAppSelector(
-    (state) => state.sidebar
-  );
-
-  const sidebarWidth = isMobile ? widthMobile : widthDesktop;
-
-  const modalStyle = {
-    marginLeft: `${sidebarWidth}px`,
-  };
-
   return (
-    <div className="modalOverlay" onClick={onCancel}>
-      <div
-        className="modal modal--slim modal--dark"
-        style={modalStyle}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <Toolbox
-          onClose={onCancel}
-          canBeCompact={false}
-          right="0.75rem"
-          darkMode={true}
-        />
-        <div className="modal__content scroll--dark">
-          <Art share={share} enableScroll={false} />
-        </div>
+    <Modal onCancel={onCancel} isSlim isDark adjustForSidebar>
+      <Toolbox
+        onClose={onCancel}
+        canBeCompact={false}
+        right="0.75rem"
+        darkMode={true}
+      />
+      <div className="modal__content scroll--dark">
+        <Art share={share} enableScroll={false} />
       </div>
-    </div>
+    </Modal>
   );
 }
 

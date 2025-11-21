@@ -129,9 +129,7 @@ export class ShareModel {
   static unpublish(id: string): AnyShare | undefined {
     const share = this.findById(id);
     if (!share) return undefined;
-    if (share.platform !== Platform.Artify) {
-      throw new Error(`Unpublishing is not supported for ${share.platform}`);
-    }
+
     share.isPublished = false;
     share.publishDate = undefined;
     share.updatedAt = new Date();

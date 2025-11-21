@@ -7,6 +7,7 @@ import { PaintingAdapter } from "@/adapters/PaintingAdapter";
 import AutoGrowTextarea from "@/components/Inputs/AutoGrowTextarea";
 import IntegrationArea from "@/components/Integrations/IntegrationArea";
 import ShareList from "@/components/Integrations/ShareList/ShareList";
+import Modal from "@/components/Modal/Modal";
 import { API_URL } from "@/config";
 import { faLightbulb } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -48,46 +49,44 @@ function ChangeTitleModal({
   };
 
   return (
-    <div className="modalOverlay" onClick={onCancel}>
-      <div className="modal" onClick={(e) => e.stopPropagation()}>
-        <div className="modalHeader">
-          <h2>Change painting title</h2>
+    <Modal onCancel={onCancel} adjustForSidebar>
+      <div className="modalHeader">
+        <h2>Change painting title</h2>
+      </div>
+      <input
+        type="text"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+        className="input"
+      />
+      <div className={styles.modalActions}>
+        <div className={styles.extraActions}>
+          <button
+            className={`btn btn--ai ${suggesting ? "loading" : ""}`}
+            onClick={() => void suggestTitle()}
+            disabled={suggesting}
+          >
+            <FontAwesomeIcon
+              icon={faLightbulb}
+              className={`icon ${styles.iconMarginRight}`}
+            />
+            {suggesting ? "Generating..." : "Suggest"}
+          </button>
         </div>
-        <input
-          type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          className="input"
-        />
-        <div className={styles.modalActions}>
-          <div className={styles.extraActions}>
-            <button
-              className={`btn btn--ai ${suggesting ? "loading" : ""}`}
-              onClick={() => void suggestTitle()}
-              disabled={suggesting}
-            >
-              <FontAwesomeIcon
-                icon={faLightbulb}
-                className={`icon ${styles.iconMarginRight}`}
-              />
-              {suggesting ? "Generating..." : "Suggest"}
-            </button>
-          </div>
-          <div className={styles.mainActions}>
-            <button className={`btn btn--subtle`} onClick={onCancel}>
-              Cancel
-            </button>
-            <button
-              className={`btn btn--inverse`}
-              onClick={() => onConfirm(title)}
-              disabled={title.trim() === ""}
-            >
-              Save
-            </button>
-          </div>
+        <div className={styles.mainActions}>
+          <button className={`btn btn--subtle`} onClick={onCancel}>
+            Cancel
+          </button>
+          <button
+            className={`btn btn--inverse`}
+            onClick={() => onConfirm(title)}
+            disabled={title.trim() === ""}
+          >
+            Save
+          </button>
         </div>
       </div>
-    </div>
+    </Modal>
   );
 }
 
@@ -117,49 +116,47 @@ function ChangeManifestModal({
   };
 
   return (
-    <div className="modalOverlay" onClick={onCancel}>
-      <div className="modal" onClick={(e) => e.stopPropagation()}>
-        <div className="modal__content">
-          <div className="modalHeader">
-            <h2>Change Manifest Description</h2>
-          </div>
-          <AutoGrowTextarea
-            value={description}
-            onChange={(value: string) => setDescription(value)}
-            className="input"
-            placeholder="Describe this artwork's story, inspiration, or details..."
-          />
-          <div className={styles.modalActions}>
-            <div className={styles.extraActions}></div>
-            <div className={styles.mainActions}>
-              <button className="btn btn--subtle" onClick={onCancel}>
-                Cancel
-              </button>
-              <button
-                className="btn btn btn--subtle"
-                onClick={() => fileInputRef.current?.click()}
-              >
-                Load From File
-              </button>
-              <input
-                type="file"
-                accept=".txt,.md,.json"
-                ref={fileInputRef}
-                className={styles.manifestFileInput}
-                onChange={handleManifestFileUpload}
-              />
-              <button
-                className="btn btn--inverse"
-                onClick={() => onConfirm(description)}
-                disabled={description.trim() === ""}
-              >
-                Save
-              </button>
-            </div>
+    <Modal onCancel={onCancel} adjustForSidebar>
+      <div className="modal__content">
+        <div className="modalHeader">
+          <h2>Change Manifest Description</h2>
+        </div>
+        <AutoGrowTextarea
+          value={description}
+          onChange={(value: string) => setDescription(value)}
+          className="input"
+          placeholder="Describe this artwork's story, inspiration, or details..."
+        />
+        <div className={styles.modalActions}>
+          <div className={styles.extraActions}></div>
+          <div className={styles.mainActions}>
+            <button className="btn btn--subtle" onClick={onCancel}>
+              Cancel
+            </button>
+            <button
+              className="btn btn btn--subtle"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              Load From File
+            </button>
+            <input
+              type="file"
+              accept=".txt,.md,.json"
+              ref={fileInputRef}
+              className={styles.manifestFileInput}
+              onChange={handleManifestFileUpload}
+            />
+            <button
+              className="btn btn--inverse"
+              onClick={() => onConfirm(description)}
+              disabled={description.trim() === ""}
+            >
+              Save
+            </button>
           </div>
         </div>
       </div>
-    </div>
+    </Modal>
   );
 }
 

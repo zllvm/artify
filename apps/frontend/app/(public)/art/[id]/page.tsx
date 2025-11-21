@@ -23,12 +23,8 @@ export async function generateMetadata({
     };
   }
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-  const paintingUrl = `${baseUrl}/art/${share.id}`;
-  const imageUrl = `${baseUrl}/backend/${share.images.original}`;
-  // const imageUrl = share.imageUrl.startsWith("http")
-  //   ? share.imageUrl
-  //   : `${baseUrl}${share.imageUrl}`;
+  const paintingUrl = `/art/${share.id}`;
+  const imageUrl = `/backend/${share.images.original}`;
 
   return {
     title: `${share.title || "Untitled"} - Artify`,

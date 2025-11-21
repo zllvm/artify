@@ -58,11 +58,16 @@ jobs:
         if: inputs.app == 'frontend'
         env:
           SENTRY_AUTH_TOKEN: ${{ vars.SENTRY_AUTH_TOKEN }}
+          SENTRY_DSN: ${{ vars.SENTRY_DSN }}
         run: |
+          echo "SENTRY_DSN=${SENTRY_DSN}" | cut -c1-10
+          echo "SENTRY_DSN length=${#SENTRY_DSN}"
+
           docker build \
           --secret id=sentry_auth_token,env=SENTRY_AUTH_TOKEN \
           --build-arg NEXT_PUBLIC_BACKEND_URL=${{ vars.BACKEND_URL }} \
           --build-arg NEXT_PUBLIC_SENTRY_DSN=${{ vars.SENTRY_DSN }} \
+          --build-arg SENTRY_DSN=${SENTRY_DSN} \
           --build-arg NEXT_PUBLIC_SENTRY_DEBUG=true \
           -t ${{ env.APP_NAME }} -f ${{ inputs.dockerfile }} .
 

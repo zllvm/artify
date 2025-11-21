@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 
 import { ShareAdapter } from "@/adapters/ShareAdapter";
+import Modal from "@/components/Modal/Modal";
 import { useAuth } from "@/hooks";
 import { formatDateTime } from "@/utils/dateUtils";
 import { AnyShare, Platform } from "@artify/shared";
@@ -36,33 +37,31 @@ function ChangeAliasModal({
   const [alias, setAlias] = useState(initialAlias);
 
   return (
-    <div className="modalOverlay" onClick={onCancel}>
-      <div className="modal" onClick={(e) => e.stopPropagation()}>
-        <div className="modalHeader">
-          <h2>Change share alias</h2>
-        </div>
-        <input
-          type="text"
-          value={alias}
-          onChange={(e) => setAlias(e.target.value)}
-          className="input"
-        />
-        <div className={styles.modalActions}>
-          <div></div>
-          <div className={styles.mainActions}>
-            <button className={`btn btn--subtle`} onClick={onCancel}>
-              Cancel
-            </button>
-            <button
-              className={`btn btn--inverse`}
-              onClick={() => onConfirm(alias)}
-            >
-              Save
-            </button>
-          </div>
+    <Modal onCancel={onCancel} adjustForSidebar>
+      <div className="modalHeader">
+        <h2>Change share alias</h2>
+      </div>
+      <input
+        type="text"
+        value={alias}
+        onChange={(e) => setAlias(e.target.value)}
+        className="input"
+      />
+      <div className={styles.modalActions}>
+        <div></div>
+        <div className={styles.mainActions}>
+          <button className={`btn btn--subtle`} onClick={onCancel}>
+            Cancel
+          </button>
+          <button
+            className={`btn btn--inverse`}
+            onClick={() => onConfirm(alias)}
+          >
+            Save
+          </button>
         </div>
       </div>
-    </div>
+    </Modal>
   );
 }
 
@@ -146,7 +145,7 @@ export default function FacebookIntegration({
 
     try {
       const url = `${window.location.origin}/art/${selectedArtifyShare}`;
-      // return;
+
       if (action === "publish") {
         window.open(
           `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
@@ -200,7 +199,7 @@ export default function FacebookIntegration({
 
   function onView() {
     if (share && isExisting) {
-      const url = `/art/${share.id}`;
+      const url = `/art/${selectedArtifyShare}`;
       window.open(url, "_blank", "noopener,noreferrer");
     }
   }
@@ -252,7 +251,7 @@ export default function FacebookIntegration({
           onDelete={
             isExisting && !isReadonly ? () => void handleDelete() : undefined
           }
-          onView={share && isExisting ? onView : undefined}
+          onView={share && selectedArtifyShare ? onView : undefined}
           onSave={() => void handleSubmit("draft")}
           onPublish={
             !isReadonly ? () => void handleSubmit("publish") : undefined
@@ -337,6 +336,8 @@ export default function FacebookIntegration({
               if (selected) {
                 setSelectedArtifyShare(selected.id);
                 setErrors((prev) => ({ ...prev, artifyShareId: undefined }));
+              } else {
+                setSelectedArtifyShare("");
               }
             }}
             disabled={loading || isReadonly}

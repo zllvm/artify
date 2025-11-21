@@ -60,9 +60,6 @@ jobs:
             -var="container_image=${{ inputs.container_image }}" \
             -var="jwt_public_key=${{ vars.JWT_PUBLIC_KEY }}" \
             -var="domain_name=${{ vars.DOMAIN_NAME }}" \
-            -var="sentry_auth_token=${{ vars.SENTRY_AUTH_TOKEN }}" \
-            -var="service_client_id=${{ vars.SERVICE_CLIENT_ID }}" \
-            -var="service_client_secret=${{ vars.SERVICE_CLIENT_SECRET }}" \
             -out=tfplan_aws
         working-directory: ${{ env.TF_WORKING_DIR }}
 

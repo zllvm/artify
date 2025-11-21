@@ -68,21 +68,3 @@ variable "health_endpoint" {
   type        = string
   default     = "/api/health"
 }
-
-variable "sentry_auth_token" {
-  description = "Sentry Auth Token for uploading source maps"
-  type        = string
-  sensitive   = true
-}
-
-variable "service_client_id" {
-  description = "Service Client ID for service-to-service authentication"
-  type        = string
-  sensitive   = true
-}
-
-variable "service_client_secret" {
-  description = "Service Client Secret for service-to-service authentication"
-  type        = string
-  sensitive   = true
-}

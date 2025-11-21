@@ -62,13 +62,14 @@ jobs:
       - name: Build Docker image (frontend)
         if: inputs.app == 'frontend'
         env:
-          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          sentry_auth_token: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          sentry_client_logging: "false"
         run: |
           docker build \
-          --secret id=sentry_auth_token,env=SENTRY_AUTH_TOKEN \
+          --secret id=sentry_auth_token,env=sentry_auth_token \
           --build-arg NEXT_PUBLIC_BACKEND_URL=${{ vars.BACKEND_URL }} \
           --build-arg NEXT_PUBLIC_SENTRY_DSN=${{ secrets.SENTRY_DSN }} \
-          --build-arg NEXT_PUBLIC_SENTRY_DEBUG=true \
+          --build-arg NEXT_PUBLIC_SENTRY_DEBUG=${sentry_client_logging} \
           -t ${{ env.APP_NAME }} -f ${{ inputs.dockerfile }} .
 
       - name: Build Docker image (backend)

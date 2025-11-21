@@ -6,8 +6,8 @@
   "scripts": {
     "dev": "NODE_OPTIONS='--inspect=9229 --enable-source-maps' next dev -H 0.0.0.0 --turbopack",
     "dev:max": "NODE_OPTIONS='--inspect=9229 --enable-source-maps' dotenv -e .env.max -- next dev -H 0.0.0.0 --turbopack",
-    "build": "next build --turbopack",
-    "build:max": "dotenvx run -f .env.max -- next build --turbopack",
+    "build": "next build",
+    "build:max": "dotenvx run -f .env.max -- next build",
     "lint": "eslint .",
     "start": "next start",
     "prod": "pnpm run build:max && next start"
